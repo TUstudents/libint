@@ -205,7 +205,7 @@ macro(process_integrals_class class)
                 list(GET WITH_${class}_MAX_AM ${_d} _candidate_${class}_d${_d})
                 message(VERBOSE "setting _candidate_${class}_d${_d}=${_candidate_${class}_d${_d}}")
 
-                if (_candidate_${class}_d${_d} LESS_EQUAL 0)
+                if (_candidate_${class}_d${_d} LESS 0)
                     message(FATAL_ERROR "Invalid value for WITH_${class}_MAX_AM derivative element ${_d} (${_candidate_${class}_d${_d}} <= 0).")
                 endif()
             endforeach()
