@@ -51,6 +51,7 @@ jobs:
       CCACHE_COMPRESSLEVEL : 6
       BUILD_CONFIG : >
         -G Ninja
+        -D CMAKE_PREFIX_PATH='/opt/homebrew/opt/eigen@3'
         -D CMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -D BUILD_SHARED_LIBS=${{ matrix.build_shared_libs }}
         -D LIBINT_BUILD_LIBRARY_AS_SUBPROJECT=${{ matrix.subproject }}
@@ -95,7 +96,6 @@ jobs:
       run: |
         brew install ninja gcc@11 gmp boost eigen@3 bison ccache automake python@3.13 numpy scipy scikit-image pytest
         echo "FC=/opt/homebrew/Cellar/gcc@11/11.5.0/bin/gfortran-11" >> $GITHUB_ENV
-        echo "EIGEN3_INCLUDE_DIR=/opt/homebrew/opt/eigen@3/include/eigen3" >> $GITHUB_ENV
         pip3.13 show pytest || pip3.13 install --break-system-packages pytest
 
     - name: Install prerequisite Ubuntu packages
@@ -105,7 +105,6 @@ jobs:
         sudo apt-get install ninja-build gfortran liblapack-dev libboost-dev libeigen3-dev ccache python3-numpy python3-scipy python3-pip
         pip3 install --break-system-packages scikit-build-core build pytest
         echo "FC=/usr/bin/gfortran" >> $GITHUB_ENV
-        echo "EIGEN3_INCLUDE_DIR=/usr/include/eigen3" >> $GITHUB_ENV
 
     - name: Prepare ccache timestamp
       if: ${{ steps.skip_check.outputs.should_skip != 'true' }}
