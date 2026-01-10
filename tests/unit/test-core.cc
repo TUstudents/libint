@@ -25,7 +25,7 @@
 
 TEST_CASE("SolidHarmonicsCoefficients ctor", "[shell]") {
   using libint2::solidharmonics::SolidHarmonicsCoefficients;
-  REQUIRE_NOTHROW(SolidHarmonicsCoefficients<long double>::instance(12));
+  REQUIRE_NOTHROW(SolidHarmonicsCoefficients<long double>::instance(10));
   auto sh12 = SolidHarmonicsCoefficients<long double>::instance(12);
   CHECK_NOTHROW(sh12.coeff(12, 0, 0, 0, 12));
   CHECK(sh12.coeff(12, 0, 0, 0, 12) == Approx(1));
