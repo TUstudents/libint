@@ -138,9 +138,9 @@ std::vector<double> coeffs_normalized(const Shell &s) {
 
 PYBIND11_MODULE(libint2, m) {
   py::enum_<SHGShellOrdering>(m, "SHGShellOrdering")
-      .value("Standard", libint2::SHGShellOrdering_Standard)
-      .value("Gaussian", libint2::SHGShellOrdering_Gaussian)
-      .value("MOLDEN", libint2::SHGShellOrdering_Gaussian);
+      .value("SHGShellOrdering_Standard", libint2::SHGShellOrdering_Standard)
+      .value("SHGShellOrdering_Gaussian", libint2::SHGShellOrdering_Gaussian)
+      .value("SHGShellOrdering_MOLDEN", libint2::SHGShellOrdering_Gaussian);
 
   libint2::initialize();
 
