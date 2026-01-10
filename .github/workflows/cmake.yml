@@ -12,7 +12,7 @@ jobs:
       fail-fast: false
       matrix:
         build_type : [ Release, Debug ]
-        os : [ macos-latest, ubuntu-24.04 ]
+        os : [ macos-15, ubuntu-24.04 ]
         subproject : [ ON, OFF ]
         exclude:
           - build_type: Release
