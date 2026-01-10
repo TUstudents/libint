@@ -94,9 +94,10 @@ jobs:
     - name: Install prerequisite MacOS packages
       if: ${{ steps.skip_check.outputs.should_skip != 'true' && matrix.os == 'macos-15' }}
       run: |
-        brew install ninja gcc@11 gmp boost eigen@3 bison ccache automake python numpy scipy scikit-image pytest
+        brew install ninja gcc@11 gmp boost eigen@3 bison ccache automake python numpy scipy scikit-image
         echo "FC=/opt/homebrew/Cellar/gcc@11/11.5.0/bin/gfortran-11" >> $GITHUB_ENV
-        pip show pytest || pip install --break-system-packages pytest
+        pip install --break-system-packages pytest
+        pip show pytest
 
     - name: Install prerequisite Ubuntu packages
       if: ${{ steps.skip_check.outputs.should_skip != 'true' && matrix.os == 'ubuntu-24.04' }}
