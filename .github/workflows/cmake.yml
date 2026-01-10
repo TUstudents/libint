@@ -22,7 +22,7 @@ jobs:
             cxx: g++
             cc: gcc
             compressor: gzip
-          - os: macos-latest
+          - os: macos-15
             cxx: clang++
             cc: clang
             compressor: bzip2
@@ -35,7 +35,7 @@ jobs:
             do_fortran: ON
           - build_type: Release
             build_shared_libs: ON
-            os: macos-latest
+            os: macos-15
             do_fortran: OFF
           # someday when mac+fortran+shared is fixed (plus universal do_fortran: ON)
           #- build_type: Release
@@ -91,7 +91,7 @@ jobs:
         cmake -E make_directory ${{github.workspace}}/build/library_test
 
     - name: Install prerequisite MacOS packages
-      if: ${{ steps.skip_check.outputs.should_skip != 'true' && matrix.os == 'macos-latest' }}
+      if: ${{ steps.skip_check.outputs.should_skip != 'true' && matrix.os == 'macos-15' }}
       run: |
         brew install ninja gcc@11 gmp boost eigen@3 bison ccache automake python@3.13 numpy scipy scikit-image pytest
         echo "FC=/opt/homebrew/Cellar/gcc@11/11.5.0/bin/gfortran-11" >> $GITHUB_ENV
@@ -201,7 +201,7 @@ jobs:
               -D CMAKE_CXX_COMPILER=clang-cl
               -D CMAKE_C_COMPILER=clang-cl
 
-          - runs-on: macos-latest
+          - runs-on: macos-15
             lane: macos-clang
             libargs: >
               -D BUILD_SHARED_LIBS=OFF
