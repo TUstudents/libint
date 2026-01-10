@@ -216,6 +216,6 @@ else()
     install(
       FILES
         "${CMAKE_CURRENT_BINARY_DIR}/include/libint2/basis.h"
-      DESTINATION "${STAGED_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}/libint2"
+      DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/libint2"
       )
 endif()
