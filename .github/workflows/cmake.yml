@@ -334,3 +334,32 @@ jobs:
       working-directory: ${{github.workspace}}/libint/build
       run: |
         cmake --build . --target check
+
+    - name: Test Libint library - consume installation for SCF [from build+install]
+      shell: bash -l {0}
+      run: |
+        mkdir test_installed_library && cd test_installed_library
+        cat > CMakeLists.txt <<EOF
+        cmake_minimum_required(VERSION 3.8)
+        project(hf++)
+        find_package(Libint2 2.12.0 REQUIRED)
+        get_target_property(_l2_maxam Libint2::int2 Libint2_MAX_AM_ERI)
+        message("Libint2_MAX_AM_ERI \${_l2_maxam}")
+        find_package(Threads)  # clang does not autolink threads even though we are using std::thread
+        add_executable(hf++ EXCLUDE_FROM_ALL "../libint/tests/hartree-fock/hartree-fock++.cc")
+        target_link_libraries(hf++ Libint2::cxx Threads::Threads)
+        EOF
+        cmake -S . -B from_build_tree -DCMAKE_PREFIX_PATH="${{github.workspace}}/libint/build" ${{ matrix.cfg.testargs }}
+        cmake --build from_build_tree --target hf++
+        from_build_tree/hf++ ../libint/tests/hartree-fock/h2o_rotated.xyz | python ../libint/tests/hartree-fock/hartree-fock++-validate.py ../libint/MakeVars.features
+        cmake -S . -B from_install_tree -DCMAKE_PREFIX_PATH="${{github.workspace}}/installed" ${{ matrix.cfg.testargs }}
+        cmake --build from_install_tree --target hf++
+        from_install_tree/hf++ ../libint/tests/hartree-fock/h2o_rotated.xyz | python ../libint/tests/hartree-fock/hartree-fock++-validate.py ../libint/MakeVars.features
+
+    - name: Build & Test Python bindings (again, independently)
+      shell: bash -l {0}
+      working-directory: ${{github.workspace}}/libint/python
+      run: |
+        cmake . -D CMAKE_PREFIX_PATH="${{github.workspace}}/installed" ${{ matrix.cfg.testargs }}
+        cmake --build . --target libint2-python
+        cmake --build . --target libint2-python-test
