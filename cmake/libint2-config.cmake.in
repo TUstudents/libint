@@ -56,12 +56,22 @@ list(PREPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
 include(CMakeFindDependencyMacro)
 
     if(NOT TARGET Eigen3::Eigen)
-        find_dependency(Eigen3 REQUIRED)
+      set(Eigen3_CONFIG @Eigen3_CONFIG@)
+      if (NOT Eigen3_CONFIG OR NOT EXISTS ${Eigen3_CONFIG})
+        message(WARNING "Libint2 library was built with Eigen3Config.cmake detected at ${Eigen3_CONFIG}, but this path is no longer valid; directory moved since Libint2 library build?")
+      endif()
+      get_filename_component(Eigen3_DIR ${Eigen3_CONFIG} DIRECTORY)
+      find_dependency(Eigen3 REQUIRED PATHS ${Eigen3_CONFIG})
     endif()
 
     if (@LIBINT_HAS_SYSTEM_BOOST_PREPROCESSOR_VARIADICS@)  # LIBINT_HAS_SYSTEM_BOOST_PREPROCESSOR_VARIADICS
         # Boost headers _not_ unpacked to within `include/libint2/`
         if (NOT TARGET Boost::headers)
+            set(Boost_CONFIG @Boost_CONFIG@)
+            if (NOT Boost_CONFIG OR NOT EXISTS ${Boost_CONFIG})
+              message(WARNING "Libint2 library was built with BoostConfig.cmake detected at ${Boost_CONFIG}, but this path is no longer valid; directory moved since Libint2 library build?")
+            endif()
+            get_filename_component(Boost_DIR ${Boost_CONFIG} DIRECTORY)
             find_dependency(Boost 1.57 REQUIRED)
         endif()
     else()
@@ -79,5 +89,28 @@ foreach(_eri @Libint2_CONFIG_COMPONENTS@)  # Libint2_CONFIG_COMPONENTS
     set(${L2}_${_eri}_FOUND 1)
 endforeach()
 
+# Import library targets
+if(NOT TARGET ${L2}::int-shared AND NOT TARGET ${L2}::int-static)
+  include("${CMAKE_CURRENT_LIST_DIR}/${pnv}-targets.cmake")
+endif()
 
+# Create convenience aliases matching the build-tree names
+if (TARGET ${L2}::int-shared)
+    if (NOT TARGET ${L2}::int2)
+        add_library(${L2}::int2 ALIAS ${L2}::int-shared)
+    endif()
+elseif (TARGET ${L2}::int-static)
+    if (NOT TARGET ${L2}::int2)
+        add_library(${L2}::int2 ALIAS ${L2}::int-static)
+    endif()
+endif()
 
+if (TARGET ${L2}::int-cxx-headeronly-shared)
+    if (NOT TARGET ${L2}::cxx)
+        add_library(${L2}::cxx ALIAS ${L2}::int-cxx-headeronly-shared)
+    endif()
+elseif (TARGET ${L2}::int-cxx-headeronly-static)
+    if (NOT TARGET ${L2}::cxx)
+        add_library(${L2}::cxx ALIAS ${L2}::int-cxx-headeronly-static)
+    endif()
+endif()

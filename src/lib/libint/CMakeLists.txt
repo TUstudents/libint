@@ -60,6 +60,8 @@ add_custom_command(
           -P ${CMAKE_CURRENT_SOURCE_DIR}/populate.cmake
   DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/populate.cmake"
+    "${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt.export"
+    "${PROJECT_SOURCE_DIR}/cmake/libint2-config.cmake.in"
     "${PROJECT_BINARY_DIR}/generated/libint2_params.h"
     "${PROJECT_BINARY_DIR}/generated/HRRPart0bra0ket0pp.h"
     "${PROJECT_BINARY_DIR}/generated/HRRPart0bra0ket0pp.cc"
@@ -120,8 +122,10 @@ if (LIBINT_BUILD_LIBRARY_AS_SUBPROJECT)
 else()
     include(ExternalProject)
 
+    set(LIBRARY_INSTALL_STAGE_DIR "${CMAKE_CURRENT_BINARY_DIR}/library-install-stage")
     list(APPEND library_CMAKE_ARGS
         -G${CMAKE_GENERATOR}
+        -DCMAKE_INSTALL_PREFIX=${LIBRARY_INSTALL_STAGE_DIR}
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         -DBUILD_TESTING=${BUILD_TESTING}
         -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
@@ -213,9 +217,20 @@ else()
         endif()
     endif()
 
+    # install library from ExternalProject staging area into CMAKE_INSTALL_PREFIX
     install(
-      FILES
-        "${CMAKE_CURRENT_BINARY_DIR}/include/libint2/basis.h"
-      DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/libint2"
+      DIRECTORY "${LIBRARY_INSTALL_STAGE_DIR}/"
+      DESTINATION "."
+      USE_SOURCE_PERMISSIONS
       )
+
+    # generate basis.h at install time so DATADIR_ABSOLUTE reflects any --prefix override
+    install(CODE "
+      set(LIBINT_VERSION \"${LIBINT_VERSION}\")
+      set(DATADIR_ABSOLUTE \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/libint/${LIBINT_VERSION}\")
+      configure_file(
+        \"${PROJECT_SOURCE_DIR}/include/libint2/basis.h.in\"
+        \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}/libint2/basis.h\"
+        @ONLY)
+    ")
 endif()

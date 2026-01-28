@@ -112,6 +112,19 @@ message(STATUS "Setting option LIBINT2_SHELL_SET: ${LIBINT2_SHELL_SET} (read-onl
 ######################## Process & Validate Options ###########################
 include(autocmake_safeguards)
 
+# Set install paths ====================================================================================================
+
+set(LIBINT2_INSTALL_BINDIR "${CMAKE_INSTALL_BINDIR}"
+        CACHE PATH "LIBINT2 binary install directory")
+set(LIBINT2_INSTALL_INCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}"
+        CACHE PATH "LIBINT2 INCLUDE install directory")
+set(LIBINT2_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}"
+        CACHE PATH "LIBINT2 LIB install directory")
+set(LIBINT2_INSTALL_DATADIR "share/libint/${LIBINT_VERSION}"
+        CACHE PATH "LIBINT2 DATA install directory")
+set(LIBINT2_INSTALL_CMAKEDIR "lib/cmake/libint2"
+        CACHE PATH "LIBINT2 CMAKE install directory")
+
 
 # ====  Dependencies  ===========================================================
 
@@ -351,6 +364,7 @@ if (L2_BUILD_SHARED_LIBS)
       INTERFACE
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
         $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+        $<INSTALL_INTERFACE:${LIBINT2_INSTALL_INCLUDEDIR}>
       )
 
     if (LIBINT2_REQUIRE_CXX_API)
@@ -377,7 +391,7 @@ if (L2_BUILD_SHARED_LIBS)
             target_compile_definitions(
               int-cxx-headeronly-shared
               INTERFACE
-                $<INSTALL_INTERFACE:DATADIR="\$\{_IMPORT_PREFIX\}/${LIBINT2_INSTALL_BASISDIR}">
+                $<INSTALL_INTERFACE:DATADIR="\$\{_IMPORT_PREFIX\}/${LIBINT2_INSTALL_DATADIR}">
               )
         endif()
         target_link_libraries(
@@ -470,6 +484,7 @@ if (L2_BUILD_STATIC_LIBS)
       INTERFACE
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
         $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+        $<INSTALL_INTERFACE:${LIBINT2_INSTALL_INCLUDEDIR}>
       )
 
     if (LIBINT2_REQUIRE_CXX_API)
@@ -683,22 +698,117 @@ endif()
 configure_package_config_file(
   cmake/${pnv}-config.cmake.in
   "${CMAKE_CURRENT_BINARY_DIR}/${pnv}-config.cmake"
-  INSTALL_DESTINATION "lib/cmake/libint2" # TODO ${LIBINT2_INSTALL_CMAKEDIR}
+  INSTALL_DESTINATION "${LIBINT2_INSTALL_CMAKEDIR}"
   NO_SET_AND_CHECK_MACRO
   )
 
 #  <<<  Install  >>>
 
+# install library targets
+set(_libint2_install_targets)
+if (L2_BUILD_SHARED_LIBS)
+    list(APPEND _libint2_install_targets int-shared)
+endif()
+if (L2_BUILD_STATIC_LIBS)
+    list(APPEND _libint2_install_targets int-static)
+endif()
+
 install(
-  DIRECTORY
-    ${PROJECT_SOURCE_DIR}/include2/  # TODO temp for skeleton
-  TYPE INCLUDE
+  TARGETS ${_libint2_install_targets}
+  EXPORT ${pnv}-targets
+  RUNTIME DESTINATION "${LIBINT2_INSTALL_BINDIR}"
+  LIBRARY DESTINATION "${LIBINT2_INSTALL_LIBDIR}"
+  ARCHIVE DESTINATION "${LIBINT2_INSTALL_LIBDIR}"
+  )
+
+# install headers from source tree
+install(
+  DIRECTORY ${PROJECT_SOURCE_DIR}/include/
+  DESTINATION "${LIBINT2_INSTALL_INCLUDEDIR}"
   COMPONENT ${L2}_Development
   FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
+    PATTERN "*.h.cmake.in" EXCLUDE
+    PATTERN "*.h.in" EXCLUDE
   )
 
+# install generated C API headers into libint2/ subdirectory
+# (they live at include/ root in the source tree but are included as <libint2/...>)
+install(
+  FILES
+    ${PROJECT_SOURCE_DIR}/include/libint2_params.h
+    ${PROJECT_SOURCE_DIR}/include/libint2_iface.h
+    ${PROJECT_SOURCE_DIR}/include/libint2_types.h
+  DESTINATION "${LIBINT2_INSTALL_INCLUDEDIR}/libint2"
+  )
+
+# install generated headers from binary tree
+install(
+  FILES
+    ${PROJECT_BINARY_DIR}/include/libint2/config2.h
+  DESTINATION "${LIBINT2_INSTALL_INCLUDEDIR}/libint2"
+  )
+
+# install basis.h at install time so DATADIR_ABSOLUTE reflects any --prefix override
+install(CODE "
+  set(LIBINT_VERSION \"${LIBINT_VERSION}\")
+  set(DATADIR_ABSOLUTE \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/libint/${LIBINT_VERSION}\")
+  configure_file(
+    \"${PROJECT_SOURCE_DIR}/include/libint2/basis.h.in\"
+    \"\${CMAKE_INSTALL_PREFIX}/${LIBINT2_INSTALL_INCLUDEDIR}/libint2/basis.h\"
+    @ONLY)
+")
+
+# install bundled Boost headers if needed
+if (NOT LIBINT_HAS_SYSTEM_BOOST_PREPROCESSOR_VARIADICS)
+    install(
+      DIRECTORY ${PROJECT_BINARY_DIR}/include/libint2/boost
+      DESTINATION "${LIBINT2_INSTALL_INCLUDEDIR}/libint2"
+      )
+endif()
+
+# install basis set library
+install(
+  DIRECTORY ${PROJECT_SOURCE_DIR}/lib/basis
+  DESTINATION "${LIBINT2_INSTALL_DATADIR}"
+  )
+
+# CXX API targets
+if (LIBINT2_REQUIRE_CXX_API)
+    set(_cxx_targets)
+    if (L2_BUILD_SHARED_LIBS)
+        list(APPEND _cxx_targets int-cxx-headeronly-shared)
+        if (LIBINT2_REQUIRE_CXX_API_COMPILED)
+            list(APPEND _cxx_targets int-cxx-shared)
+        endif()
+    endif()
+    if (L2_BUILD_STATIC_LIBS)
+        list(APPEND _cxx_targets int-cxx-headeronly-static)
+        if (LIBINT2_REQUIRE_CXX_API_COMPILED)
+            list(APPEND _cxx_targets int-cxx-static)
+        endif()
+    endif()
+    if (_cxx_targets)
+        install(
+          TARGETS ${_cxx_targets}
+          EXPORT ${pnv}-targets
+          RUNTIME DESTINATION "${LIBINT2_INSTALL_BINDIR}"
+          LIBRARY DESTINATION "${LIBINT2_INSTALL_LIBDIR}"
+          ARCHIVE DESTINATION "${LIBINT2_INSTALL_LIBDIR}"
+          )
+    endif()
+endif()
+
+# Fortran modules
+if (LIBINT2_ENABLE_FORTRAN)
+    install(
+      DIRECTORY ${PROJECT_BINARY_DIR}/${BUILDTREE_FMODDIR}/
+      DESTINATION "${LIBINT2_INSTALL_INCLUDEDIR}"
+      )
+endif()
+
+# Eigen local install
 if (LIBINT2_LOCAL_Eigen3_INSTALL AND TARGET Eigen3::Eigen)
 
     add_library(Eigen INTERFACE)
@@ -716,7 +826,7 @@ if (LIBINT2_LOCAL_Eigen3_INSTALL AND TARGET Eigen3::Eigen)
     install(
       TARGETS
         Eigen
-      EXPORT local_set
+      EXPORT ${pnv}-targets
       LIBRARY
         COMPONENT ${L2}_Eigen3
         NAMELINK_COMPONENT ${L2}_Eigen3
@@ -729,12 +839,39 @@ endif()
 
 #  <<<  Export Config  >>>
 
-if (LIBINT2_LOCAL_Eigen3_INSTALL AND TARGET Eigen3::Eigen)
-    install(
-      EXPORT local_set
-      FILE "${pnv}-targets-eigen3.cmake"
-      NAMESPACE "${L2}::"
-      DESTINATION ${LIBINT2_INSTALL_CMAKEDIR}
-      COMPONENT ${L2}_Eigen3
-      )
-endif()
+# Create the version file
+write_basic_package_version_file(
+  ${pnv}-config-version.cmake
+  VERSION ${LIBINT_VERSION}
+  COMPATIBILITY AnyNewerVersion
+  )
+
+# Install export targets
+install(
+  EXPORT ${pnv}-targets
+  FILE "${pnv}-targets.cmake"
+  NAMESPACE "${L2}::"
+  DESTINATION "${LIBINT2_INSTALL_CMAKEDIR}"
+  )
+
+# Install config and version files
+install(
+  FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/${pnv}-config.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/${pnv}-config-version.cmake"
+  DESTINATION "${LIBINT2_INSTALL_CMAKEDIR}"
+  )
+
+# Install cmake modules needed by the config file (FindEigen3, etc.)
+install(
+  FILES
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/FindEigen3.cmake"
+  DESTINATION "${LIBINT2_INSTALL_CMAKEDIR}"
+  )
+
+# Make Libint consumable from the build directory without installation
+export(
+  EXPORT ${pnv}-targets
+  NAMESPACE "${L2}::"
+  FILE "${CMAKE_CURRENT_BINARY_DIR}/${pnv}-targets.cmake"
+  )

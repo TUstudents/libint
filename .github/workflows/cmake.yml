@@ -171,6 +171,35 @@ jobs:
       working-directory: ${{github.workspace}}/build/compiler
       run: cmake --build build --target check-python
 
+    - name: Install Libint library
+      if: ${{ steps.skip_check.outputs.should_skip != 'true' }}
+      shell: bash
+      working-directory: ${{github.workspace}}/build/compiler
+      run: cmake --install build --prefix ${{github.workspace}}/build/library
+
+    - name: Test installed Libint library (find_package + hartree-fock++)
+      if: ${{ steps.skip_check.outputs.should_skip != 'true' }}
+      shell: bash
+      working-directory: ${{github.workspace}}/build/library_test
+      run: |
+        cat > CMakeLists.txt <<'EOF'
+        cmake_minimum_required(VERSION 3.16)
+        project(libint2-consumer CXX)
+        find_package(Libint2 REQUIRED)
+        find_package(Threads REQUIRED)
+        add_executable(hf++ hartree-fock++.cc)
+        target_link_libraries(hf++ Libint2::cxx Threads::Threads)
+        EOF
+        cp ${{github.workspace}}/tests/hartree-fock/hartree-fock++.cc .
+        cp ${{github.workspace}}/tests/hartree-fock/h2o_rotated.xyz .
+        cp ${{github.workspace}}/tests/hartree-fock/hartree-fock++-validate.py .
+        cp ${{github.workspace}}/build/compiler/build/libint-*/features .
+        cmake -S . -B build -G Ninja \
+          -D CMAKE_PREFIX_PATH="${{github.workspace}}/build/library;/opt/homebrew/opt/eigen@3"
+        cmake --build build
+        ./build/hf++ h2o_rotated.xyz | tee hf++.out
+        python3 hartree-fock++-validate.py features hf++.out
+
   build_export:
     # to debug the second stage, it is handy to short-circuit the first stage:
     # * suppress steps beyond "Archive Library Tarball" with "if: false"

@@ -101,6 +101,8 @@ else ()
   # search first if an Eigen3Config.cmake is available in the system,
   # if successful this would set EIGEN3_INCLUDE_DIR and the rest of
   # the script will work as usual
+  # re:NO_CMAKE_PACKAGE_REGISTRY: eigen3 registers its *build* tree with the user package registry ...
+  #                               to avoid issues with wiped build directory look for installed eigen
   find_package(Eigen3 ${Eigen3_FIND_VERSION} NO_MODULE QUIET NO_CMAKE_PACKAGE_REGISTRY)
 
   if(NOT EIGEN3_INCLUDE_DIR)
@@ -131,4 +133,3 @@ if(EIGEN3_FOUND AND NOT TARGET Eigen3::Eigen)
   set_target_properties(Eigen3::Eigen PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES "${EIGEN3_INCLUDE_DIR}")
 endif()
-
