@@ -224,12 +224,13 @@ else()
       USE_SOURCE_PERMISSIONS
       )
 
-    # override basis.h installed by ExternalProject with one configured
-    # with the outer CMAKE_INSTALL_PREFIX (it contains the absolute
-    # datadir path baked in at configure time)
-    install(
-      FILES
-        "${CMAKE_CURRENT_BINARY_DIR}/include/libint2/basis.h"
-      DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/libint2"
-      )
+    # generate basis.h at install time so DATADIR_ABSOLUTE reflects any --prefix override
+    install(CODE "
+      set(LIBINT_VERSION \"${LIBINT_VERSION}\")
+      set(DATADIR_ABSOLUTE \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/libint/${LIBINT_VERSION}\")
+      configure_file(
+        \"${PROJECT_SOURCE_DIR}/include/libint2/basis.h.in\"
+        \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}/libint2/basis.h\"
+        @ONLY)
+    ")
 endif()
