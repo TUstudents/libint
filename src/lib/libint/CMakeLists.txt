@@ -218,11 +218,13 @@ else()
     endif()
 
     # install library from ExternalProject staging area into CMAKE_INSTALL_PREFIX
-    install(
-      DIRECTORY "${LIBRARY_INSTALL_STAGE_DIR}/"
-      DESTINATION "."
-      USE_SOURCE_PERMISSIONS
-      )
+    foreach(_dir include lib share)
+      install(
+        DIRECTORY "${LIBRARY_INSTALL_STAGE_DIR}/${_dir}/"
+        DESTINATION "${_dir}"
+        USE_SOURCE_PERMISSIONS
+        )
+    endforeach()
 
     # generate basis.h at install time so DATADIR_ABSOLUTE reflects any --prefix override
     install(CODE "
