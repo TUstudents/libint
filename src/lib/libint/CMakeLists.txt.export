@@ -721,9 +721,20 @@ install(
   ARCHIVE DESTINATION "${LIBINT2_INSTALL_LIBDIR}"
   )
 
-# install headers from source tree
+# install public API headers from source tree
+# only install libint2.h, libint2.hpp at include/ root
+# and the libint2/ subdirectory (C++ API headers)
+# do NOT install the generated integral evaluation headers at include/ root
+# (they are only used during library compilation, not by end users)
 install(
-  DIRECTORY ${PROJECT_SOURCE_DIR}/include/
+  FILES
+    ${PROJECT_SOURCE_DIR}/include/libint2.h
+    ${PROJECT_SOURCE_DIR}/include/libint2.hpp
+  DESTINATION "${LIBINT2_INSTALL_INCLUDEDIR}"
+  COMPONENT ${L2}_Development
+  )
+install(
+  DIRECTORY ${PROJECT_SOURCE_DIR}/include/libint2
   DESTINATION "${LIBINT2_INSTALL_INCLUDEDIR}"
   COMPONENT ${L2}_Development
   FILES_MATCHING
