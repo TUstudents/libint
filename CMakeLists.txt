@@ -103,7 +103,7 @@ message(STATUS "Building using CMake ${CMAKE_VERSION} Generator ${CMAKE_GENERATO
 option_with_default(CMAKE_BUILD_TYPE "Build type (Release or Debug)" Release)
 
 ### compiler-only
-option_with_print(LIBINT_BUILD_LIBRARY_AS_SUBPROJECT
+option_with_print(LIBINT2_BUILD_LIBRARY_AS_SUBPROJECT
   "[EXPERT] Build generated library as a subproject: if FALSE will configure and build separately" OFF)
 
 ### library-only

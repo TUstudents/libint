@@ -85,7 +85,7 @@ add_custom_command(
   WORKING_DIRECTORY "${EXPORT_STAGE_DIR}/.."
   COMMENT "Exporting tarball of Libint2 library source: ${EXPORT_TARBALL}"
   )
-if (LIBINT_BUILD_LIBRARY_AS_SUBPROJECT)
+if (LIBINT2_BUILD_LIBRARY_AS_SUBPROJECT)
     # rerun cmake if building as subproject to unpack and consume the library as subproject
     add_custom_target(libint-library-export DEPENDS "${EXPORT_TARBALL}"
       COMMAND ${CMAKE_COMMAND} -S "${CMAKE_SOURCE_DIR}" -B "${CMAKE_BINARY_DIR}")
@@ -105,7 +105,7 @@ else()
     message(FATAL_ERROR "No C language support; invoke CMake with -D CMAKE_C_COMPILER=/path/to/C/compiler to resolve")
 endif()
 
-if (LIBINT_BUILD_LIBRARY_AS_SUBPROJECT)
+if (LIBINT2_BUILD_LIBRARY_AS_SUBPROJECT)
     include(FetchContent)
 
     if (EXISTS "${EXPORT_TARBALL}")
@@ -116,7 +116,7 @@ if (LIBINT_BUILD_LIBRARY_AS_SUBPROJECT)
           )
         FetchContent_MakeAvailable(libint-library)
     else()
-        message(WARNING "LIBINT_BUILD_LIBRARY_AS_SUBPROJECT=ON but library has not been exported yet; build target 'libint-library-export' first, this will make library build/test targets ('check', 'install') available. Don't run 'check' with CTEST_PARALLEL_LEVEL as this will build the library multiple times.")
+        message(WARNING "LIBINT2_BUILD_LIBRARY_AS_SUBPROJECT=ON but library has not been exported yet; build target 'libint-library-export' first, this will make library build/test targets ('check', 'install') available. Don't run 'check' with CTEST_PARALLEL_LEVEL as this will build the library multiple times.")
     endif()
 
 else()

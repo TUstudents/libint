@@ -87,7 +87,7 @@ Use combined targets like `cmake --target check install` to avoid some unnecessa
 
 [^26]: See [see "Internal Targets" column in table](#consumption-targets) for individual library targets.
 
-[^27]: For FetchContent/`LIBINT_BUILD_LIBRARY_AS_SUBPROJECT=ON`, build target `export` aka `libint-library-export`. Then, as a separate command, build further targets like `check` or `install`; target plain `library` is not available.
+[^27]: For FetchContent/`LIBINT2_BUILD_LIBRARY_AS_SUBPROJECT=ON`, build target `export` aka `libint-library-export`. Then, as a separate command, build further targets like `check` or `install`; target plain `library` is not available.
 
 -----------------------------------------------------------------------------
 
@@ -280,7 +280,7 @@ Note that options, docs, and CMake components are focused on the C++ interface, 
 * `CMAKE_BUILD_TYPE` — G L — [Standard CMake variable](https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html) [Default=Release]
 * `BUILD_SHARED_LIBS` — L — Build Libint library as shared, not static. [Standard CMake variable](https://cmake.org/cmake/help/latest/variable/BUILD_SHARED_LIBS.html) [Default=OFF]
 * `LIBINT2_BUILD_SHARED_AND_STATIC_LIBS` — L — Build both shared and static Libint libraries in one shot. Uses `-fPIC`. [Default=OFF]
-* `LIBINT_BUILD_LIBRARY_AS_SUBPROJECT` — G — If building compiler and library in continuous command, build generated library as a subproject (FetchContent); if OFF will configure and build separately (ExternalProject) (expert only). [Default=OFF]
+* `LIBINT2_BUILD_LIBRARY_AS_SUBPROJECT` — G — If building compiler and library in continuous command, build generated library as a subproject (FetchContent); if OFF will configure and build separately (ExternalProject) (expert only). [Default=OFF]
 
 ### Detecting Dependencies (G L C) (TARBALL)
 

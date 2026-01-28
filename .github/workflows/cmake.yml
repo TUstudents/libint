@@ -55,7 +55,7 @@ jobs:
         -D CMAKE_PREFIX_PATH='/opt/homebrew/opt/eigen@3'
         -D CMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -D BUILD_SHARED_LIBS=${{ matrix.build_shared_libs }}
-        -D LIBINT_BUILD_LIBRARY_AS_SUBPROJECT=${{ matrix.subproject }}
+        -D LIBINT2_BUILD_LIBRARY_AS_SUBPROJECT=${{ matrix.subproject }}
         -D CMAKE_INSTALL_PREFIX=${{github.workspace}}/build/library
         -D WITH_MAX_AM=2;2
         -D WITH_ERI_MAX_AM=2;2
