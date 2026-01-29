@@ -351,10 +351,10 @@ jobs:
         EOF
         cmake -S . -B from_build_tree -DCMAKE_PREFIX_PATH="${{github.workspace}}/libint/build" ${{ matrix.cfg.testargs }}
         cmake --build from_build_tree --target hf++
-        from_build_tree/hf++ ../libint/tests/hartree-fock/h2o_rotated.xyz | python ../libint/tests/hartree-fock/hartree-fock++-validate.py ../libint/MakeVars.features
+        from_build_tree/hf++ ../libint/tests/hartree-fock/h2o_rotated.xyz | python ../libint/tests/hartree-fock/hartree-fock++-validate.py ../libint/features
         cmake -S . -B from_install_tree -DCMAKE_PREFIX_PATH="${{github.workspace}}/installed" ${{ matrix.cfg.testargs }}
         cmake --build from_install_tree --target hf++
-        from_install_tree/hf++ ../libint/tests/hartree-fock/h2o_rotated.xyz | python ../libint/tests/hartree-fock/hartree-fock++-validate.py ../libint/MakeVars.features
+        from_install_tree/hf++ ../libint/tests/hartree-fock/h2o_rotated.xyz | python ../libint/tests/hartree-fock/hartree-fock++-validate.py ../libint/features
 
     - name: Build & Test Python bindings (again, independently)
       shell: bash -l {0}
