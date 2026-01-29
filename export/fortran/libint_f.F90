@@ -57,40 +57,40 @@ MODULE libint_f
 
 #include "libint2_types_f.h"
 
-#ifdef INCLUDE_ERI
+#ifdef LIBINT_INCLUDE_ERI
    TYPE(C_FUNPTR), DIMENSION(0:libint2_max_am_eri, 0:libint2_max_am_eri, 0:libint2_max_am_eri, 0:libint2_max_am_eri), &
       BIND(C) :: libint2_build_eri
-#if INCLUDE_ERI >= 1
+#if LIBINT_INCLUDE_ERI >= 1
    TYPE(C_FUNPTR), DIMENSION(0:libint2_max_am_eri1, 0:libint2_max_am_eri1, 0:libint2_max_am_eri1, 0:libint2_max_am_eri1), &
       BIND(C) :: libint2_build_eri1
 #endif
-#if INCLUDE_ERI >= 2
+#if LIBINT_INCLUDE_ERI >= 2
    TYPE(C_FUNPTR), DIMENSION(0:libint2_max_am_eri2, 0:libint2_max_am_eri2, 0:libint2_max_am_eri2, 0:libint2_max_am_eri2), &
       BIND(C) :: libint2_build_eri2
 #endif
 #endif
 
-#ifdef INCLUDE_ERI2
+#ifdef LIBINT_INCLUDE_ERI2
    TYPE(C_FUNPTR), DIMENSION(0:libint2_max_am_2eri, 0:libint2_max_am_2eri), &
       BIND(C) :: libint2_build_2eri
-#if INCLUDE_ERI2 >= 1
+#if LIBINT_INCLUDE_ERI2 >= 1
    TYPE(C_FUNPTR), DIMENSION(0:libint2_max_am_2eri1, 0:libint2_max_am_2eri1), &
       BIND(C) :: libint2_build_2eri1
 #endif
-#if INCLUDE_ERI2 >= 2
+#if LIBINT_INCLUDE_ERI2 >= 2
    TYPE(C_FUNPTR), DIMENSION(0:libint2_max_am_2eri2, 0:libint2_max_am_2eri2), &
       BIND(C) :: libint2_build_2eri2
 #endif
 #endif
 
-#ifdef INCLUDE_ERI3
+#ifdef LIBINT_INCLUDE_ERI3
    TYPE(C_FUNPTR), DIMENSION(0:libint2_max_am_default, 0:libint2_max_am_default, 0:libint2_max_am_3eri), &
       BIND(C) :: libint2_build_3eri
-#if INCLUDE_ERI3 >= 1
+#if LIBINT_INCLUDE_ERI3 >= 1
    TYPE(C_FUNPTR), DIMENSION(0:libint2_max_am_default1, 0:libint2_max_am_default1, 0:libint2_max_am_3eri1), &
       BIND(C) :: libint2_build_3eri1
 #endif
-#if INCLUDE_ERI3 >= 2
+#if LIBINT_INCLUDE_ERI3 >= 2
    TYPE(C_FUNPTR), DIMENSION(0:libint2_max_am_default2, 0:libint2_max_am_default2, 0:libint2_max_am_3eri2), &
       BIND(C) :: libint2_build_3eri2
 #endif
@@ -103,7 +103,7 @@ MODULE libint_f
       SUBROUTINE libint2_static_cleanup() BIND(C)
       END SUBROUTINE
 
-#ifdef INCLUDE_ERI
+#ifdef LIBINT_INCLUDE_ERI
       SUBROUTINE libint2_init_eri(libint, max_am, buf) BIND(C)
          IMPORT
          TYPE(libint_t), DIMENSION(*) :: libint
@@ -122,7 +122,7 @@ MODULE libint_f
          INTEGER(KIND=C_SIZE_T) :: libint2_need_memory_eri
       END FUNCTION
 
-#if INCLUDE_ERI >= 1
+#if LIBINT_INCLUDE_ERI >= 1
       SUBROUTINE libint2_init_eri1(libint, max_am, buf) BIND(C)
          IMPORT
          TYPE(libint_t), DIMENSION(*) :: libint
@@ -142,7 +142,7 @@ MODULE libint_f
       END FUNCTION
 #endif
 
-#if INCLUDE_ERI >= 2
+#if LIBINT_INCLUDE_ERI >= 2
       SUBROUTINE libint2_init_eri2(libint, max_am, buf) BIND(C)
          IMPORT
          TYPE(libint_t), DIMENSION(*) :: libint
@@ -163,7 +163,7 @@ MODULE libint_f
 #endif
 #endif
 
-#ifdef INCLUDE_ERI2
+#ifdef LIBINT_INCLUDE_ERI2
       SUBROUTINE libint2_init_2eri(libint, max_am, buf) BIND(C)
          IMPORT
          TYPE(libint_t), DIMENSION(*) :: libint
@@ -182,7 +182,7 @@ MODULE libint_f
          INTEGER(KIND=C_SIZE_T) :: libint2_need_memory_2eri
       END FUNCTION
 
-#if INCLUDE_ERI2 >= 1
+#if LIBINT_INCLUDE_ERI2 >= 1
       SUBROUTINE libint2_init_2eri1(libint, max_am, buf) BIND(C)
          IMPORT
          TYPE(libint_t), DIMENSION(*) :: libint
@@ -202,7 +202,7 @@ MODULE libint_f
       END FUNCTION
 #endif
 
-#if INCLUDE_ERI2 >= 2
+#if LIBINT_INCLUDE_ERI2 >= 2
       SUBROUTINE libint2_init_2eri2(libint, max_am, buf) BIND(C)
          IMPORT
          TYPE(libint_t), DIMENSION(*) :: libint
@@ -223,7 +223,7 @@ MODULE libint_f
 #endif
 #endif
 
-#ifdef INCLUDE_ERI3
+#ifdef LIBINT_INCLUDE_ERI3
       SUBROUTINE libint2_init_3eri(libint, max_am, buf) BIND(C)
          IMPORT
          TYPE(libint_t), DIMENSION(*) :: libint
@@ -242,7 +242,7 @@ MODULE libint_f
          INTEGER(KIND=C_SIZE_T) :: libint2_need_memory_3eri
       END FUNCTION
 
-#if INCLUDE_ERI3 >= 1
+#if LIBINT_INCLUDE_ERI3 >= 1
       SUBROUTINE libint2_init_3eri1(libint, max_am, buf) BIND(C)
          IMPORT
          TYPE(libint_t), DIMENSION(*) :: libint
@@ -262,7 +262,7 @@ MODULE libint_f
       END FUNCTION
 #endif
 
-#if INCLUDE_ERI3 >= 2
+#if LIBINT_INCLUDE_ERI3 >= 2
       SUBROUTINE libint2_init_3eri2(libint, max_am, buf) BIND(C)
          IMPORT
          TYPE(libint_t), DIMENSION(*) :: libint
@@ -291,7 +291,7 @@ MODULE libint_f
       END SUBROUTINE
    END INTERFACE
 
-#ifdef INCLUDE_ERI
+#ifdef LIBINT_INCLUDE_ERI
 CONTAINS
    SUBROUTINE compute_eri_f(contrdepth, deriv_order, am1, c1, alpha1, A, &
                             am2, c2, alpha2, B, &
@@ -605,10 +605,10 @@ CONTAINS
 #endif
 
       IF (deriv_order == 0) CALL C_F_PROCPOINTER(libint2_build_eri(am4, am3, am2, am1), build_eri)
-#if INCLUDE_ERI >= 1
+#if LIBINT_INCLUDE_ERI >= 1
       IF (deriv_order == 1) CALL C_F_PROCPOINTER(libint2_build_eri1(am4, am3, am2, am1), build_eri)
 #endif
-#if INCLUDE_ERI >= 2
+#if LIBINT_INCLUDE_ERI >= 2
       IF (deriv_order == 2) CALL C_F_PROCPOINTER(libint2_build_eri2(am4, am3, am2, am1), build_eri)
 #endif
 

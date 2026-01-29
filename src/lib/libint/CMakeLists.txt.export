@@ -71,7 +71,7 @@ endif()
 
 option_with_default(LIBINT2_REALTYPE
   "Specifies the floating-point data type used by the library." double)
-option_with_print(LIBINT_USER_DEFINED_REAL_INCLUDES
+option_with_print(LIBINT2_USER_DEFINED_REAL_INCLUDES
   "UNTESTED Additional #includes necessary to use the real type." OFF)
 include(int_userreal)
 

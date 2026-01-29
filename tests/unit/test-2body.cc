@@ -199,7 +199,7 @@ TEST_CASE("eri geometric derivatives", "[engine][2-body]") {
   const auto max_l = libint2::max_l(obs);
 
   {
-    const auto deriv_order = INCLUDE_ERI;
+    const auto deriv_order = LIBINT_INCLUDE_ERI;
     Engine engine;
     try {
       engine = Engine(Operator::coulomb, max_nprim, max_l, deriv_order);
