@@ -158,7 +158,7 @@ file(
 #   They're generated along with the integrals .h/.cc library src, then get
 #   exported to include/ (along with the integrals .h), then are finally
 #   installed (not with the integrals .h) into include/libint2/ . The
-#   __COMPILING_LIBINT define and the include/libint2/util/generated/libint2_*.h
+#   __COMPILING_LIBINT2 define and the include/libint2/util/generated/libint2_*.h
 #   redirection headers take care of the "build tree"/"export" setup.
 # In a cmake+cmake buildsystem, one could probably install these three headers
 #   to both locations and forego the define.

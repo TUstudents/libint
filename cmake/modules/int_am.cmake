@@ -1,10 +1,11 @@
 # handle the defaulting and setting of the following variables
-# * ENABLE_[ONEBODY|ERI2|ERI3|ERI|G12|G12DKH]
-# * [LIBINT|ONEBODY|ERI2|ERI3|ERI|G12|G12DKH]_[MAX|OPT]_AM[|_LIST]
-# * MULTIPOLE_MAX_ORDER
+# * LIBINT_ENABLE_[ONEBODY|ERI2|ERI3|ERI|G12|G12DKH]
+# * LIBINT_[_|_ONEBODY|_ERI2|_ERI3|_ERI|_G12|_G12DKH]_[MAX|OPT]_AM[|_LIST]
 # * LIBINT_ONEBODY_DERIV
 # * LIBINT_SUPPORTS_ONEBODY
 # * SUPPORT_T1G12
+#
+# it also enforces angular momentum limits for all user options
 
 # "_candidate" variables are not needed for config.h but are used to figure out
 #   the AM limits at the CMake level so that libint2-config.cmake components may
@@ -60,58 +61,57 @@ message(STATUS "Processing integrals classes ...")
 
 # <<<  overall derivatives level  >>>
 
-set(_glob_classes_derivs ${ENABLE_ONEBODY};${ENABLE_ERI};${ENABLE_ERI3};${ENABLE_ERI2};${ENABLE_G12};${ENABLE_G12DKH})
+set(_glob_classes_derivs ${LIBINT2_ENABLE_ONEBODY};${LIBINT2_ENABLE_ERI};${LIBINT2_ENABLE_ERI3};${LIBINT2_ENABLE_ERI2};${LIBINT2_ENABLE_G12};${LIBINT2_ENABLE_G12DKH})
 numerical_max_of_list(_max_deriv "${_glob_classes_derivs}")
 message(STATUS "Preparing highest derivative level ${_max_deriv}")
 
 # <<<  overall max_am defaults  >>>
 
-list(LENGTH WITH_MAX_AM _ntokens_maxam)
+list(LENGTH LIBINT2_MAX_AM _ntokens_maxam)
 if (_ntokens_maxam GREATER 1)
     math(EXPR _ntokens_xptd_max_deriv "${_max_deriv} + 1")
     if (NOT _ntokens_xptd_max_deriv EQUAL _ntokens_maxam)
-        message(FATAL_ERROR "Invalid value for WITH_MAX_AM (${WITH_MAX_AM}). Highest ENABLE_ derivative (${_max_deriv}) requires list length ${_ntokens_xptd_max_deriv}, not ${_ntokens_maxam}.")
+        message(FATAL_ERROR "Invalid value for LIBINT2_MAX_AM (${LIBINT2_MAX_AM}). Highest LIBINT2_ENABLE_ derivative (${_max_deriv}) requires list length ${_ntokens_xptd_max_deriv}, not ${_ntokens_maxam}.")
     endif()
 
-    numerical_max_of_list(_max_am "${WITH_MAX_AM}")
-    list(JOIN WITH_MAX_AM "," _sam)
+    numerical_max_of_list(_max_am "${LIBINT2_MAX_AM}")
+    list(JOIN LIBINT2_MAX_AM "," _sam)
     set(LIBINT_MAX_AM_LIST ${_sam})
     # when LIST populated, only overall LIBINT (not specific ints classes) sets both MAX_AM & MAX_AM_LIST
     set(LIBINT_MAX_AM ${_max_am})
-    set(_max_LIBINT_MAX_AM ${LIBINT_MAX_AM})
 else()
     set(LIBINT_MAX_AM_LIST "")
-    set(LIBINT_MAX_AM ${WITH_MAX_AM})
+    set(LIBINT_MAX_AM ${LIBINT2_MAX_AM})
 endif()
 
 foreach(_d RANGE 0 ${_max_deriv})
     if (${_d} LESS _ntokens_maxam)
-        list(GET WITH_MAX_AM ${_d} _eri3_candidate0_d${_d})
+        list(GET LIBINT2_MAX_AM ${_d} _eri3_candidate0_d${_d})
         set(_dflt_candidate0_d${_d} "${LIBINT_MAX_AM}")
     else()
         set(_eri3_candidate0_d${_d} "${LIBINT_MAX_AM}")
         set(_dflt_candidate0_d${_d} "-1")
     endif()
-    # _candidate0_dD=int_am defined up to highest ENABLE_cls deriv D from best info from WITH_MAX_AM
+    # _candidate0_dD=int_am defined up to highest LIBINT_ENABLE_cls deriv D from best info from LIBINT2_MAX_AM
     message(VERBOSE "setting _eri3_candidate0_d${_d}=${_eri3_candidate0_d${_d}}")
     message(VERBOSE "setting _dflt_candidate0_d${_d}=${_dflt_candidate0_d${_d}}")
 endforeach()
 
 if (LIBINT_MAX_AM GREATER_EQUAL ${LIBINT_HARD_MAX_AM})
-    message(WARNING "LIBINT_MAX_AM=${LIBINT_MAX_AM} is greater than ${LIBINT_HARD_MAX_AM}. Are you sure you know what you are doing?")
+    message(WARNING "LIBINT2_MAX_AM exceeds LIBINT_HARD_MAX_AM=${LIBINT_HARD_MAX_AM} (${LIBINT_MAX_AM}). Are you sure you know what you are doing?")
 elseif (LIBINT_MAX_AM LESS_EQUAL 0)
-    message(FATAL_ERROR "Invalid value for LIBINT_MAX_AM (${LIBINT_MAX_AM}).")
+    message(FATAL_ERROR "LIBINT2_MAX_AM contains negative value(${LIBINT_MAX_AM}).")
 endif()
 
-message(STATUS "Preparing generic LIBINT_MAX_AM_LIST ${LIBINT_MAX_AM_LIST} and LIBINT_MAX_AM ${LIBINT_MAX_AM} for integrals class defaults.")
+message(STATUS "Preparing generic LIBINT_MAX_AM_LIST ${LIBINT_MAX_AM_LIST} and max(LIBINT2_MAX_AM) ${LIBINT_MAX_AM} for integrals class defaults.")
 
 # <<<  overall opt_am defaults  >>>
 
-list(LENGTH WITH_OPT_AM _ntokens_optam)
-if (NOT WITH_OPT_AM EQUAL -1)
+list(LENGTH LIBINT2_OPT_AM _ntokens_optam)
+if (NOT LIBINT2_OPT_AM EQUAL -1)
     if (NOT _ntokens_optam EQUAL _ntokens_maxam)
         # discard two cases: scalar opt and list max -and- list opt and scalar max
-        message(FATAL_ERROR "Invalid format for WITH_OPT_AM (${WITH_OPT_AM}). Use the same format and length like `N` or `N0;N1;N2` as WITH_MAX_AM (${WITH_MAX_AM}).")
+        message(FATAL_ERROR "Invalid format for LIBINT2_OPT_AM (${LIBINT2_OPT_AM}). Use the same format and length like `N` or `N0;N1;N2` as LIBINT2_MAX_AM (${LIBINT2_MAX_AM}).")
     endif()
 endif()
 if (_ntokens_optam GREATER 1)
@@ -119,8 +119,8 @@ if (_ntokens_optam GREATER 1)
     set(_processed_OPT_AM_LIST )
     math(EXPR _range_limit "${_ntokens_maxam} - 1")
     foreach(_d RANGE ${_range_limit})
-        list(GET WITH_MAX_AM ${_d} _max_am)
-        list(GET WITH_OPT_AM ${_d} _opt_am)
+        list(GET LIBINT2_MAX_AM ${_d} _max_am)
+        list(GET LIBINT2_OPT_AM ${_d} _opt_am)
         if (_opt_am LESS_EQUAL _max_am)
             list(APPEND _processed_OPT_AM_LIST ${_opt_am})
         else()
@@ -131,7 +131,7 @@ if (_ntokens_optam GREATER 1)
     list(JOIN _processed_OPT_AM_LIST "," LIBINT_OPT_AM_LIST)
     numerical_max_of_list(LIBINT_OPT_AM "${_processed_OPT_AM_LIST}")
 else()
-    if(WITH_OPT_AM EQUAL -1)
+    if(LIBINT2_OPT_AM EQUAL -1)
         # first branch is a nice default pattern but not exactly what configure.ac prescribes, so bypassing it
         # if (_ntokens_maxam GREATER 1)
         if (FALSE)
@@ -139,7 +139,7 @@ else()
             set(_processed_OPT_AM_LIST )
             math(EXPR _range_limit "${_ntokens_maxam} - 1")
             foreach(_d RANGE ${_range_limit})
-                list(GET WITH_MAX_AM ${_d} _max_am)
+                list(GET LIBINT2_MAX_AM ${_d} _max_am)
                 math(EXPR _opt_am "${_max_am}/2 + 1")
                 list(APPEND _processed_OPT_AM_LIST ${_opt_am})
             endforeach()
@@ -154,7 +154,7 @@ else()
     else()
         # scalar opt and scalar max: use scalar opt validating aginst max
         set(LIBINT_OPT_AM_LIST "")
-        set(LIBINT_OPT_AM ${WITH_OPT_AM})
+        set(LIBINT_OPT_AM ${LIBINT2_OPT_AM})
 
         if (LIBINT_OPT_AM GREATER LIBINT_MAX_AM)
             set(LIBINT_OPT_AM ${LIBINT_MAX_AM})
@@ -162,60 +162,60 @@ else()
     endif()
 endif()
 
-message(STATUS "Preparing generic LIBINT_OPT_AM_LIST ${LIBINT_OPT_AM_LIST} and LIBINT_OPT_AM ${LIBINT_OPT_AM} for integrals class defaults.")
+message(STATUS "Preparing generic LIBINT_OPT_AM_LIST ${LIBINT_OPT_AM_LIST} and max(LIBINT2_OPT_AM) ${LIBINT_OPT_AM} for integrals class defaults.")
 
 # <<<  Macro  >>>
 
 macro(process_integrals_class class)
 
-    list(LENGTH ENABLE_${class} _ntokens)
+    list(LENGTH LIBINT2_ENABLE_${class} _ntokens)
     if (NOT _ntokens EQUAL 1)
-        message(FATAL_ERROR "Invalid value for ENABLE_${class} (${ENABLE_${class}}). Use scalar of maximum derivative level, not list.")
+        message(FATAL_ERROR "Invalid value for LIBINT2_ENABLE_${class} (${LIBINT2_ENABLE_${class}}). Use scalar of maximum derivative level, not list.")
     endif()
 
-    if (ENABLE_${class} GREATER_EQUAL 0)
-        set(INCLUDE_${class} ${ENABLE_${class}})
+    if (LIBINT2_ENABLE_${class} GREATER_EQUAL 0)
+        set(LIBINT_INCLUDE_${class} ${LIBINT2_ENABLE_${class}})
 
         foreach(_d RANGE 0 ${_max_deriv})
-            if (${_d} LESS_EQUAL ${INCLUDE_${class}})
+            if (${_d} LESS_EQUAL ${LIBINT_INCLUDE_${class}})
                 set(_candidate0_${class}_d${_d} ${_dflt_candidate0_d${_d}})
                 message(VERBOSE "setting _candidate0_${class}_d${_d}=${_candidate0_${class}_d${_d}}")
             endif()
         endforeach()
 
         set(LIBINT_SUPPORTS_${class} yes)
-        set(LIBINT_${class}_DERIV ${INCLUDE_${class}})
-        message(STATUS "Enabling integrals class ${class} to derivative ${INCLUDE_${class}}")
+        set(LIBINT_${class}_DERIV ${LIBINT_INCLUDE_${class}})
+        message(STATUS "Enabling integrals class ${class} to derivative ${LIBINT_INCLUDE_${class}}")
     else()
-        set(INCLUDE_${class} "-1")
-        set(${class}_MAX_AM "")
-        set(${class}_MAX_AM_LIST "")
+        set(LIBINT_INCLUDE_${class} "-1")
+        set(LIBINT_${class}_MAX_AM "")
+        set(LIBINT_${class}_MAX_AM_LIST "")
         message(STATUS "Disabling integrals class ${class}")
     endif()
 
-    if (ENABLE_${class} GREATER_EQUAL 0)
-        list(LENGTH WITH_${class}_MAX_AM _ntokens)
+    if (LIBINT2_ENABLE_${class} GREATER_EQUAL 0)
+        list(LENGTH LIBINT2_${class}_MAX_AM _ntokens)
         if (_ntokens GREATER 1)
-            math(EXPR _ntokens_xptd_max_deriv "${INCLUDE_${class}} + 1")
+            math(EXPR _ntokens_xptd_max_deriv "${LIBINT_INCLUDE_${class}} + 1")
             if (NOT _ntokens_xptd_max_deriv EQUAL _ntokens)
-                message(FATAL_ERROR "Invalid value for WITH_${class}_MAX_AM (${WITH_${class}_MAX_AM}). ENABLE_${class} derivative (${INCLUDE_${class}}) requires list length ${_ntokens_xptd_max_deriv}, not ${_ntokens}.")
+                message(FATAL_ERROR "Invalid value for LIBINT2_${class}_MAX_AM (${LIBINT2_${class}_MAX_AM}). LIBINT2_ENABLE_${class} derivative (${LIBINT_INCLUDE_${class}}) requires list length ${_ntokens_xptd_max_deriv}, not ${_ntokens}.")
             endif()
 
-            foreach(_d RANGE ${INCLUDE_${class}})
-                list(GET WITH_${class}_MAX_AM ${_d} _candidate_${class}_d${_d})
+            foreach(_d RANGE ${LIBINT_INCLUDE_${class}})
+                list(GET LIBINT2_${class}_MAX_AM ${_d} _candidate_${class}_d${_d})
                 message(VERBOSE "setting _candidate_${class}_d${_d}=${_candidate_${class}_d${_d}}")
 
                 if (_candidate_${class}_d${_d} LESS 0)
-                    message(FATAL_ERROR "Invalid value for WITH_${class}_MAX_AM derivative element ${_d} (${_candidate_${class}_d${_d}} <= 0).")
+                    message(FATAL_ERROR "Invalid value for LIBINT2_${class}_MAX_AM derivative element ${_d} (${_candidate_${class}_d${_d}} <= 0).")
                 endif()
             endforeach()
 
-            list(JOIN WITH_${class}_MAX_AM "," ${class}_MAX_AM_LIST)
-            set(${class}_MAX_AM "")
+            list(JOIN LIBINT2_${class}_MAX_AM "," ${class}_MAX_AM_LIST)
+            set(LIBINT_${class}_MAX_AM "")
         else()
-            set(${class}_MAX_AM_LIST "")
-            if (WITH_${class}_MAX_AM EQUAL -1)
-                foreach(_d RANGE ${INCLUDE_${class}})
+            set(LIBINT_${class}_MAX_AM_LIST "")
+            if (LIBINT2_${class}_MAX_AM EQUAL -1)
+                foreach(_d RANGE ${LIBINT_INCLUDE_${class}})
                     if (${_candidate0_${class}_d${_d}} EQUAL -1)
                         set(_candidate_${class}_d${_d} ${_candidate0_${class}_d0})
                     else()
@@ -224,13 +224,13 @@ macro(process_integrals_class class)
                     message(VERBOSE "setting _candidate_${class}_d${_d}=${_candidate_${class}_d${_d}}")
                 endforeach()
 
-                set(${class}_MAX_AM "")
+                set(LIBINT_${class}_MAX_AM "")
                 # note: could set class_MAX_AM/LIST from default (in configure.ac, looks like at least scalar var set)
                 #       but philosophy is to set user-only intent and leave further defaulting to compiled code. wrong?
             else()
-                set(${class}_MAX_AM ${WITH_${class}_MAX_AM})
+                set(LIBINT_${class}_MAX_AM ${LIBINT2_${class}_MAX_AM})
 
-                foreach(_d RANGE ${INCLUDE_${class}})
+                foreach(_d RANGE ${LIBINT_INCLUDE_${class}})
                     set(_candidate_${class}_d${_d} ${${class}_MAX_AM})
                     message(VERBOSE "setting _candidate_${class}_d${_d}=${_candidate_${class}_d${_d}}")
                 endforeach()
@@ -249,20 +249,20 @@ macro(process_integrals_class class)
         endif()
         message(STATUS "Enabling integrals class ${class} to max AM ${${class}_MAX_AM}${${class}_MAX_AM_LIST} (else ${_msg})")
 
-        list(LENGTH WITH_${class}_OPT_AM _ntokens)
+        list(LENGTH LIBINT2_${class}_OPT_AM _ntokens)
         if (_ntokens GREATER 1)
             if (NOT _ntokens_xptd_max_deriv EQUAL _ntokens)
-                message(FATAL_ERROR "Invalid value for WITH_${class}_OPT_AM (${WITH_${class}_OPT_AM}). ENABLE_${class} derivative (${INCLUDE_${class}}) requires list length ${_ntokens_xptd_max_deriv}, not ${_ntokens}.")
+                message(FATAL_ERROR "Invalid value for LIBINT2_${class}_OPT_AM (${LIBINT2_${class}_OPT_AM}). LIBINT2_ENABLE_${class} derivative (${LIBINT_INCLUDE_${class}}) requires list length ${_ntokens_xptd_max_deriv}, not ${_ntokens}.")
             endif()
 
-            list(JOIN WITH_${class}_OPT_AM "," ${class}_OPT_AM_LIST)
-            set(${class}_OPT_AM "")
+            list(JOIN LIBINT2_${class}_OPT_AM "," ${class}_OPT_AM_LIST)
+            set(LIBINT_${class}_OPT_AM "")
         else()
-            set(${class}_OPT_AM_LIST "")
-            if (WITH_${class}_OPT_AM EQUAL -1)
-                set(${class}_OPT_AM "")
+            set(LIBINT_${class}_OPT_AM_LIST "")
+            if (LIBINT2_${class}_OPT_AM EQUAL -1)
+                set(LIBINT_${class}_OPT_AM "")
             else()
-                set(${class}_OPT_AM ${WITH_${class}_OPT_AM})
+                set($LIBINT_{class}_OPT_AM ${LIBINT2_${class}_OPT_AM})
             endif()
         endif()
         if (LIBINT_OPT_AM_LIST)
@@ -277,16 +277,16 @@ endmacro()
 
 macro(process_integrals_class_alt class)
 
-    list(LENGTH ENABLE_${class} _ntokens)
+    list(LENGTH LIBINT2_ENABLE_${class} _ntokens)
     if (NOT _ntokens EQUAL 1)
-        message(FATAL_ERROR "Invalid value for ENABLE_${class} (${ENABLE_${class}}). Use scalar of maximum derivative level, not list.")
+        message(FATAL_ERROR "Invalid value for LIBINT2_ENABLE_${class} (${LIBINT2_ENABLE_${class}}). Use scalar of maximum derivative level, not list.")
     endif()
 
-    if (ENABLE_${class} GREATER_EQUAL 0)
-        set(INCLUDE_${class} ${ENABLE_${class}})
+    if (LIBINT2_ENABLE_${class} GREATER_EQUAL 0)
+        set(LIBINT_INCLUDE_${class} ${LIBINT2_ENABLE_${class}})
 
         foreach(_d RANGE 0 ${_max_deriv})
-            if (${_d} LESS_EQUAL ${INCLUDE_${class}})
+            if (${_d} LESS_EQUAL ${LIBINT_INCLUDE_${class}})
                 # no per-d defaults. use energy
                 set(_candidate0_${class}_d${_d} ${_dflt_candidate0_d0})
                 message(VERBOSE "setting _candidate0_${class}_d${_d}=${_candidate0_${class}_d${_d}}")
@@ -294,34 +294,35 @@ macro(process_integrals_class_alt class)
         endforeach()
 
         set(LIBINT_SUPPORTS_${class} yes)
-        set(LIBINT_${class}_DERIV ${INCLUDE_${class}})
-        message(STATUS "Enabling integrals class ${class} to derivative ${INCLUDE_${class}}")
+        set(LIBINT_${class}_DERIV ${LIBINT_INCLUDE_${class}})
+        message(STATUS "Enabling integrals class ${class} to derivative ${LIBINT_INCLUDE_${class}}")
     else()
-        set(INCLUDE_${class} "-1")
-        set(${class}_MAX_AM "")
+        set(LIBINT_INCLUDE_${class} "-1")
+        set(LIBINT_${class}_MAX_AM "")
+        set(LIBINT_${class}_MAX_AM_LIST "")
         message(STATUS "Disabling integrals class ${class}")
     endif()
 
-    if (ENABLE_${class} GREATER_EQUAL 0)
-        list(LENGTH WITH_${class}_MAX_AM _ntokens)
+    if (LIBINT2_ENABLE_${class} GREATER_EQUAL 0)
+        list(LENGTH LIBINT2_${class}_MAX_AM _ntokens)
         if (_ntokens GREATER 1)
-            message(FATAL_ERROR "Invalid value for WITH_${class}_MAX_AM (${WITH_${class}_MAX_AM}). ENABLE_${class} derivative supports only scalar, not list length ${_ntokens}.")
+            message(FATAL_ERROR "Invalid value for LIBINT2_${class}_MAX_AM (${LIBINT2_${class}_MAX_AM}). LIBINT2_ENABLE_${class} derivative supports only scalar, not list length ${_ntokens}.")
 
         else()
-            if (WITH_${class}_MAX_AM EQUAL -1)
-                foreach(_d RANGE ${INCLUDE_${class}})
+            if (LIBINT2_${class}_MAX_AM EQUAL -1)
+                foreach(_d RANGE ${LIBINT_INCLUDE_${class}})
                     set(_candidate_${class}_d${_d} ${_candidate0_${class}_d0})
                     message(VERBOSE "setting _candidate_${class}_d${_d}=${_candidate_${class}_d0}")
                 endforeach()
 
                 set(_${class}_MAX_AM_pre "")
-                set(${class}_MAX_AM ${_candidate0_${class}_d0})
+                set(LIBINT_${class}_MAX_AM ${_candidate0_${class}_d0})
                 # note: unlike usual classes, C++ code seems to want class_MAX_AM set explicitly to config.h
             else()
-                set(_${class}_MAX_AM_pre ${WITH_${class}_MAX_AM})
-                set(${class}_MAX_AM ${WITH_${class}_MAX_AM})
+                set(_${class}_MAX_AM_pre ${LIBINT2_${class}_MAX_AM})
+                set(LIBINT_${class}_MAX_AM ${LIBINT2_${class}_MAX_AM})
 
-                foreach(_d RANGE ${INCLUDE_${class}})
+                foreach(_d RANGE ${LIBINT_INCLUDE_${class}})
                     set(_candidate_${class}_d${_d} ${${class}_MAX_AM})
                     message(VERBOSE "setting _candidate_${class}_d${_d}=${_candidate_${class}_d${_d}}")
                 endforeach()
@@ -335,18 +336,18 @@ macro(process_integrals_class_alt class)
         endif()
         message(STATUS "Enabling integrals class ${class} to max AM ${_${class}_MAX_AM_pre} (else ${LIBINT_MAX_AM})")
 
-        list(LENGTH WITH_${class}_OPT_AM _ntokens)
+        list(LENGTH LIBINT2_${class}_OPT_AM _ntokens)
         if (_ntokens GREATER 1)
-            message(FATAL_ERROR "Invalid value for WITH_${class}_OPT_AM (${WITH_${class}_OPT_AM}). ENABLE_${class} derivative supports only scalar, not list length ${_ntokens}.")
+            message(FATAL_ERROR "Invalid value for LIBINT2_${class}_OPT_AM (${LIBINT2_${class}_OPT_AM}). LIBINT2_ENABLE_${class} derivative supports only scalar, not list length ${_ntokens}.")
 
         else()
-            if (WITH_${class}_OPT_AM EQUAL -1)
+            if (LIBINT2_${class}_OPT_AM EQUAL -1)
                 set(_${class}_OPT_AM_pre "")
-                set(${class}_OPT_AM ${LIBINT_OPT_AM})
+                set(LIBINT_${class}_OPT_AM ${LIBINT_OPT_AM})
                 # note: unlike usual classes, C++ code seems to want class_MAX_AM set explicitly
             else()
-                set(_${class}_OPT_AM_pre ${WITH_${class}_OPT_AM})
-                set(${class}_OPT_AM ${WITH_${class}_OPT_AM})
+                set(_${class}_OPT_AM_pre ${LIBINT2_${class}_OPT_AM})
+                set(LIBINT_${class}_OPT_AM ${LIBINT2_${class}_OPT_AM})
             endif()
         endif()
         message(STATUS "Enabling integrals class ${class} to opt AM ${_${class}_OPT_AM_pre} (else ${LIBINT_OPT_AM})")
@@ -362,16 +363,16 @@ process_integrals_class(ERI2)
 process_integrals_class_alt(G12)
 process_integrals_class_alt(G12DKH)
 
-if (ENABLE_G12 GREATER_EQUAL 0)
-    set(SUPPORT_T1G12 ${ENABLE_T1G12_SUPPORT})
+if (LIBINT2_ENABLE_G12 GREATER_EQUAL 0)
+    set(LIBINT_SUPPORT_T1G12 ${LIBINT2_ENABLE_T1G12})
 else()
-    set(SUPPORT_T1G12 OFF)
+    set(LIBINT_SUPPORT_T1G12 OFF)
 endif()
 
 add_feature_info(
   "general integral"
   "ON"
-  "config.h: LIBINT_MAX_AM=${LIBINT_MAX_AM} LIBINT_MAX_AM_LIST=${LIBINT_MAX_AM_LIST} LIBINT_OPT_AM=${LIBINT_OPT_AM} LIBINT_OPT_AM_LIST=${LIBINT_OPT_AM_LIST}"
+  "config.h: max(LIBINT2_MAX_AM)=${LIBINT_MAX_AM} LIBINT_MAX_AM_LIST=${LIBINT_MAX_AM_LIST} max(LIBINT2_OPT_AM)=${LIBINT_OPT_AM} LIBINT_OPT_AM_LIST=${LIBINT_OPT_AM_LIST}"
   )
 
 # form list of active class + deriv + max_am strings to use in libint2-config.cmake
@@ -382,10 +383,10 @@ set(_eri3_impure_sh "")
 set(_eri2_impure_sh "")
 add_feature_info(
   "integral class MULTIPOLE derivative 0"
-  "MULTIPOLE_MAX_ORDER"
-  "max_am ${MULTIPOLE_MAX_ORDER}"
+  "LIBINT2_MULTIPOLE_MAX_ORDER"
+  "max_am ${LIBINT2_MULTIPOLE_MAX_ORDER}"
   )
-foreach(_l RANGE ${LIBINT_HARD_MIN_AM} ${MULTIPOLE_MAX_ORDER})
+foreach(_l RANGE ${LIBINT_HARD_MIN_AM} ${LIBINT2_MULTIPOLE_MAX_ORDER})
     # RANGE with count-down works but docs say behavior is undefined, so we count-up and reverse
     # RANGE starting at 2 avoids enumerating s, p
     set(_lbl "multipole_${_am${_l}}${_am${_l}}_d0")
@@ -399,25 +400,25 @@ foreach(_cls ONEBODY;ERI;ERI3;ERI2;G12;G12DKH)
     if((_cls STREQUAL G12) OR (_cls STREQUAL G12DKH))
         add_feature_info(
           "integral class ${_cls}"
-          "INCLUDE_${_cls} GREATER -1"
-          "config.h: INCLUDE_${_cls}=${INCLUDE_${_cls}} ${_cls}_MAX_AM=${${_cls}_MAX_AM} ${_cls}_OPT_AM=${${_cls}_OPT_AM}"
+          "LIBINT_INCLUDE_${_cls} GREATER -1"
+          "config.h: LIBINT_INCLUDE_${_cls}=${LIBINT_INCLUDE_${_cls}} LIBINT_${_cls}_MAX_AM=${LIBINT_${_cls}_MAX_AM} LIBINT_${_cls}_OPT_AM=${LIBINT_${_cls}_OPT_AM}"
           )
     else()
         add_feature_info(
           "integral class ${_cls}"
-          "INCLUDE_${_cls} GREATER -1"
-          "config.h: INCLUDE_${_cls}=${INCLUDE_${_cls}} ${_cls}_MAX_AM=${${_cls}_MAX_AM} ${_cls}_MAX_AM_LIST=${${_cls}_MAX_AM_LIST} ${_cls}_OPT_AM=${${_cls}_OPT_AM} ${_cls}_OPT_AM_LIST=${${_cls}_OPT_AM_LIST}"
+          "LIBINT_INCLUDE_${_cls} GREATER -1"
+          "config.h: LIBINT_INCLUDE_${_cls}=${LIBINT_INCLUDE_${_cls}} LIBINT_${_cls}_MAX_AM=${LIBINT_${_cls}_MAX_AM} ${_cls}_MAX_AM_LIST=${${_cls}_MAX_AM_LIST} LIBINT_${_cls}_OPT_AM=${LIBINT_${_cls}_OPT_AM} ${_cls}_OPT_AM_LIST=${LIBINT_${_cls}_OPT_AM_LIST}"
           )
     endif()
     if(_cls STREQUAL "G12DKH")
         # add G12DKH below when it's granted components
         continue()
     endif()
-    if (INCLUDE_${_cls} GREATER -1)
-        foreach (_d RANGE 0 ${INCLUDE_${_cls}})
+    if (LIBINT_INCLUDE_${_cls} GREATER -1)
+        foreach (_d RANGE 0 ${LIBINT_INCLUDE_${_cls}})
             add_feature_info(
               "integral class ${_cls} derivative ${_d}"
-              "INCLUDE_${_cls} GREATER -1"
+              "LIBINT_INCLUDE_${_cls} GREATER -1"
               "max_am ${_candidate_${_cls}_d${_d}}"
               )
             set(_amlist "")
@@ -454,10 +455,10 @@ foreach(_cls ONEBODY;ERI;ERI3;ERI2;G12;G12DKH)
                 list(APPEND _eri3_impure_sh "${_pureamlist}")
             endif()
         endforeach()
-        if ((_cls STREQUAL "ERI3") AND NOT ERI3_PURE_SH)
+        if ((_cls STREQUAL "ERI3") AND NOT LIBINT2_ERI3_PURE_SH)
             list(APPEND Libint2_ERI_COMPONENTS "${_eri3_impure_sh}")
             message(VERBOSE "setting components ${_eri3_impure_sh}")
-        elseif ((_cls STREQUAL "ERI2") AND NOT ERI2_PURE_SH)
+        elseif ((_cls STREQUAL "ERI2") AND NOT LIBINT2_ERI2_PURE_SH)
             list(APPEND Libint2_ERI_COMPONENTS "${_eri2_impure_sh}")
             message(VERBOSE "setting components ${_eri2_impure_sh}")
         endif()

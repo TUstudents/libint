@@ -133,7 +133,8 @@ enum class Operator {
   //! multiply these harmonics by \f$ (-1)^m \sqrt{(2 - \delta_{m,0}) (l + |m|)!
   //! (l - |m|)!} \f$ .
   //! The operator set includes multipoles of order up to \f$ l_{\rm max} = \f$
-  //! MULTIPOLE_MAX_ORDER (for a total of \f$ (l_{\rm max}+1)^2 \f$ operators),
+  //! LIBINT_MULTIPOLE_MAX_ORDER (for a total of \f$ (l_{\rm max}+1)^2 \f$
+  //! operators),
   //! in the order of increasing \c l , with the operators of same \c l but
   //! different \c m ordered according to the solid harmonics ordering
   //! CCA standard (see macro FOR_SOLIDHARM_STANDARD in shgshell_ordering.h.in).
@@ -333,7 +334,7 @@ template <>
 struct operator_traits<Operator::sphemultipole>
     : public operator_traits<Operator::emultipole1> {
   static constexpr auto nopers =
-      (MULTIPOLE_MAX_ORDER + 1) * (MULTIPOLE_MAX_ORDER + 1);
+      (LIBINT_MULTIPOLE_MAX_ORDER + 1) * (LIBINT_MULTIPOLE_MAX_ORDER + 1);
 };
 
 template <>

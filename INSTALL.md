@@ -165,18 +165,18 @@ Use combined targets like `cmake --target check install` to avoid some unnecessa
 
 ###  Which Integrals Classes, Which Derivative Levels (G)
 
-* `ENABLE_ONEBODY` - G - Compile with support for up to N-th derivatives of 1-body integrals. Use -1 for OFF. [Default=0]
-* `ENABLE_ERI` - G - Compile with support for up to N-th derivatives of 4-center electron repulsion integrals. Use -1 for OFF. [Default=0]
-* `ENABLE_ERI3` - G - Compile with support for up to N-th derivatives of 3-center electron repulsion integrals. Use -1 for OFF. [Default=-1]
-* `ENABLE_ERI2` - G - Compile with support for up to N-th derivatives of 2-center electron repulsion integrals. Use -1 for OFF. [Default=-1]
-* `ENABLE_G12` - G - Compile with support for N-th derivatives of MP2-F12 energies with Gaussian factors. Use -1 for OFF. [Default=-1]
-* `ENABLE_G12DKH` - G - Compile with support for N-th derivatives of DKH-MP2-F12 energies with Gaussian factors. Use -1 for OFF. [Default=-1]
+* `LIBINT2_ENABLE_ONEBODY` - G - Compile with support for up to N-th derivatives of 1-body integrals. Use -1 for OFF. [Default=0]
+* `LIBINT2_ENABLE_ERI` - G - Compile with support for up to N-th derivatives of 4-center electron repulsion integrals. Use -1 for OFF. [Default=0]
+* `LIBINT2_ENABLE_ERI3` - G - Compile with support for up to N-th derivatives of 3-center electron repulsion integrals. Use -1 for OFF. [Default=-1]
+* `LIBINT2_ENABLE_ERI2` - G - Compile with support for up to N-th derivatives of 2-center electron repulsion integrals. Use -1 for OFF. [Default=-1]
+* `LIBINT2_ENABLE_G12` - G - Compile with support for N-th derivatives of MP2-F12 energies with Gaussian factors. Use -1 for OFF. [Default=-1]
+* `LIBINT2_ENABLE_G12DKH` - G - Compile with support for N-th derivatives of DKH-MP2-F12 energies with Gaussian factors. Use -1 for OFF. [Default=-1]
 
-* `DISABLE_ONEBODY_PROPERTY_DERIVS` - G - Disable geometric derivatives of 1-body property integrals (all but overlap, kinetic, elecpot).
+* `LIBINT2_DISABLE_ONEBODY_PROPERTY_DERIVS` - G - Disable geometric derivatives of 1-body property integrals (all but overlap, kinetic, elecpot).
    These derivatives are disabled by default to save compile time. Use OFF to enable.
    Note that the libtool build won't enable this- if forcibly enabled, build_libint balks. [Default=ON]
 
-* `ENABLE_T1G12_SUPPORT` - G - Enable [Ti,G12] integrals when G12 integrals are enabled. Irrelevant when `ENABLE_G12=OFF`. Use OFF to disable. [Default=ON]
+* `LIBINT2_ENABLE_T1G12` - G - Enable [Ti,G12] integrals when G12 integrals are enabled. Irrelevant when `LIBINT2_ENABLE_G12=OFF`. Use OFF to disable. [Default=ON]
 
 
 ###  Which Ordering Conventions (G)
@@ -221,11 +221,11 @@ Note that options, docs, and CMake components are focused on the C++ interface, 
 ###  How High Angular Momentum (G)
 
 * Notes
-  * example for "semicolon-separated string": `-DENABLE_ERI3=2 -DWITH_ERI3_MAX_AM="5;4;3"`. cmake configuration prints:
+  * example for "semicolon-separated string": `-DLIBINT2_ENABLE_ERI3=2 -DLIBINT2_ERI3_MAX_AM="5;4;3"`. cmake configuration prints:
 
     ```
-    -- Setting option ENABLE_ERI3: 2
-    -- Setting option WITH_ERI3_MAX_AM: 5;4;3
+    -- Setting option LIBINT2_ENABLE_ERI3: 2
+    -- Setting option LIBINT2_ERI3_MAX_AM: 5;4;3
     ```
 
   * special considerations for high-AM library (L) builds:
@@ -236,30 +236,30 @@ Note that options, docs, and CMake components are focused on the C++ interface, 
       "CMake Error: Generator: execution of make failed". Throttle it to physical threads with
       `export CMAKE_BUILD_PARALLEL_LEVEL=N`.
 
-* `WITH_MAX_AM` - G - Support Gaussians of angular momentum up to N. If ERI3 ints are enabled, specifing values for each derivative level as a semicolon-separated string also controls the AM of the paired centers. [Default=4]
-* `WITH_OPT_AM` - G - Optimize maximally for up to angular momentum N (N <= WITH_MAX_AM). Can specify values for each derivative level as a semicolon-separated string. [Default=-1 -> `(WITH_MAX_AM/2)+1`]
+* `LIBINT2_MAX_AM` - G - Support Gaussians of angular momentum up to N. If ERI3 ints are enabled, specifing values for each derivative level as a semicolon-separated string also controls the AM of the paired centers. [Default=4]
+* `LIBINT2_OPT_AM` - G - Optimize maximally for up to angular momentum N (N <= LIBINT2_MAX_AM). Can specify values for each derivative level as a semicolon-separated string. [Default=-1 -> `(LIBINT2_MAX_AM/2)+1`]
 
-* `MULTIPOLE_MAX_ORDER` - G - Maximum order of spherical multipole integrals. There is no maximum. [Default=4]
+* `LIBINT2_MULTIPOLE_MAX_ORDER` - G - Maximum order of spherical multipole integrals. There is no maximum. [Default=4]
 
-* `WITH_ONEBODY_MAX_AM` - G - Support 1-body ints for Gaussians of angular momentum up to N. Can specify values for each derivative level as a semicolon-separated string. [Default=-1 -> `WITH_MAX_AM`]
-* `WITH_ONEBODY_OPT_AM` - G - Optimize 1-body ints maximally for up to angular momentum N (N <= max-am). Can specify values for each derivative level as a semicolon-separated string. [Default=-1 -> `WITH_OPT_AM`]
+* `LIBINT2_ONEBODY_MAX_AM` - G - Support 1-body ints for Gaussians of angular momentum up to N. Can specify values for each derivative level as a semicolon-separated string. [Default=-1 -> `LIBINT2_MAX_AM`]
+* `LIBINT2_ONEBODY_OPT_AM` - G - Optimize 1-body ints maximally for up to angular momentum N (N <= max-am). Can specify values for each derivative level as a semicolon-separated string. [Default=-1 -> `LIBINT2_OPT_AM`]
 
-* `WITH_ERI_MAX_AM` - G - Support 4-center ERIs for Gaussians of angular momentum up to N. Can specify values for each derivative level as a semicolon-separated string. [Default=-1 -> `WITH_MAX_AM`]
-* `WITH_ERI_OPT_AM` - G - Optimize 4-center ERIs maximally for up to angular momentum N (N <= max-am). Can specify values for each derivative level as a semicolon-separated string. [Default=-1 -> `WITH_OPT_AM`]
+* `LIBINT2_ERI_MAX_AM` - G - Support 4-center ERIs for Gaussians of angular momentum up to N. Can specify values for each derivative level as a semicolon-separated string. [Default=-1 -> `LIBINT2_MAX_AM`]
+* `LIBINT2_ERI_OPT_AM` - G - Optimize 4-center ERIs maximally for up to angular momentum N (N <= max-am). Can specify values for each derivative level as a semicolon-separated string. [Default=-1 -> `LIBINT2_OPT_AM`]
 
-* `WITH_ERI3_MAX_AM` - G - Support 3-center ERIs for Gaussians of angular momentum up to N. Can specify values for each derivative level as a semicolon-separated string. This option controls only the single fitting center; the paired centers use WITH_MAX_AM. [Default=-1 -> `WITH_MAX_AM`]
-* `WITH_ERI3_OPT_AM` - G - Optimize 3-center ERIs maximally for up to angular momentum N (N <= max-am). Can specify values for each derivative level as a semicolon-separated string. [Default=-1 -> `WITH_OPT_AM`]
-* `ERI3_PURE_SH` - G - Assume the 'unpaired' center of 3-center ERIs will be transformed to pure solid harmonics. [Default=OFF]
+* `LIBINT2_ERI3_MAX_AM` - G - Support 3-center ERIs for Gaussians of angular momentum up to N. Can specify values for each derivative level as a semicolon-separated string. This option controls only the single fitting center; the paired centers use LIBINT2_MAX_AM. [Default=-1 -> `LIBINT2_MAX_AM`]
+* `LIBINT2_ERI3_OPT_AM` - G - Optimize 3-center ERIs maximally for up to angular momentum N (N <= max-am). Can specify values for each derivative level as a semicolon-separated string. [Default=-1 -> `LIBINT2_OPT_AM`]
+* `LIBINT2_ERI3_PURE_SH` - G - Assume the 'unpaired' center of 3-center ERIs will be transformed to pure solid harmonics. [Default=OFF]
 
-* `WITH_ERI2_MAX_AM` - G - Support 2-center ERIs for Gaussians of angular momentum up to N. Can specify values for each derivative level as a semicolon-separated string. [Default=-1 -> `WITH_MAX_AM`]
-* `WITH_ERI2_OPT_AM` - G - Optimize 2-center ERIs maximally for up to angular momentum N (N <= max-am). Can specify values for each derivative level as a semicolon-separated string. [Default=-1 -> `WITH_OPT_AM`]
-* `ERI2_PURE_SH` - G - Assume the 2-center ERIs will be transformed to pure solid harmonics. [Default=OFF]
+* `LIBINT2_ERI2_MAX_AM` - G - Support 2-center ERIs for Gaussians of angular momentum up to N. Can specify values for each derivative level as a semicolon-separated string. [Default=-1 -> `LIBINT2_MAX_AM`]
+* `LIBINT2_ERI2_OPT_AM` - G - Optimize 2-center ERIs maximally for up to angular momentum N (N <= max-am). Can specify values for each derivative level as a semicolon-separated string. [Default=-1 -> `LIBINT2_OPT_AM`]
+* `LIBINT2_ERI2_PURE_SH` - G - Assume the 2-center ERIs will be transformed to pure solid harmonics. [Default=OFF]
 
-* `WITH_G12_MAX_AM` - G - Support integrals for G12 methods of angular momentum up to N. No specification with per-derivative list. [Default=-1 -> `WITH_MAX_AM`]
-* `WITH_G12_OPT_AM` - G - Optimize G12 integrals for up to angular momentum N (N <= max-am). No specification with per-derivative list. [Default=-1 `WITH_OPT_AM`]
+* `LIBINT2_G12_MAX_AM` - G - Support integrals for G12 methods of angular momentum up to N. No specification with per-derivative list. [Default=-1 -> `LIBINT2_MAX_AM`]
+* `LIBINT2_G12_OPT_AM` - G - Optimize G12 integrals for up to angular momentum N (N <= max-am). No specification with per-derivative list. [Default=-1 `LIBINT2_OPT_AM`]
 
-* `WITH_G12DKH_MAX_AM` - G - Support integrals for relativistic G12 methods of angular momentum up to N. No specification with per-derivative list. [Default=-1 -> `WITH_MAX_AM`]
-* `WITH_G12DKH_OPT_AM` - G - Optimize G12DKH integrals for up to angular momentum N (N <= max-am). No specification with per-derivative list. [Default=-1 `WITH_OPT_AM`]
+* `LIBINT2_G12DKH_MAX_AM` - G - Support integrals for relativistic G12 methods of angular momentum up to N. No specification with per-derivative list. [Default=-1 -> `LIBINT2_MAX_AM`]
+* `LIBINT2_G12DKH_OPT_AM` - G - Optimize G12DKH integrals for up to angular momentum N (N <= max-am). No specification with per-derivative list. [Default=-1 `LIBINT2_OPT_AM`]
 
 
 ### Compilers and Flags (G L) (TARBALL)
@@ -349,20 +349,20 @@ Note that options, docs, and CMake components are focused on the C++ interface, 
   **N.B.** It is also possible to use real vector types of [Agner Fog's vectorclass library](http://www.agner.org/optimize/#vectorclass), e.g. `Vec4d` and `Vec8f` for AVX. To use this library you need to add this to CPPFLAGS or CXXFLAGS: `-Ipath_to_vectorclass -DLIBINT2_HAVE_AGNER_VECTORCLASS` . On macOS, we only succeeded in using this library with a recent GNU C++ compiler, not with Clang. Not tested after CMake rework.
 
 * `LIBINT_USER_DEFINED_REAL_INCLUDES` - L - Additional #includes necessary to use the real type. [Defaults=none]
-* `LIBINT_CONTRACTED_INTS` - G - Turn on support for contracted integrals. [Default=ON]
-* `LIBINT_ERI_STRATEGY` - G - Compute ERIs using the following strategy (experts only). (0 for OS, 1 for HGP, 2 for HL). [Default=1]
-* `LIBINT_USE_COMPOSITE_EVALUATORS` - G - Libint will use composite evaluators (i.e. every evaluator will compute one integral type only). [Default=ON]
-* `LIBINT_SINGLE_EVALTYPE` - G - Generate single evaluator type (i.e. all tasks use the same evaluator). OFF is NYI [Default=ON]
-* `LIBINT_ENABLE_UNROLLING` - G - Unroll shell sets into integrals (will unroll shell sets larger than N) (0 for never, N for N, 1000000000 for always). [Default=100]
+* `LIBINT2_CONTRACTED_INTS` - G - Turn on support for contracted integrals. [Default=ON]
+* `LIBINT2_ERI_STRATEGY` - G - Compute ERIs using the following strategy (experts only). (0 for OS, 1 for HGP, 2 for HL). [Default=1]
+* `LIBINT2_USE_COMPOSITE_EVALUATORS` - G - Libint will use composite evaluators (i.e. every evaluator will compute one integral type only). [Default=ON]
+* `LIBINT2_SINGLE_EVALTYPE` - G - Generate single evaluator type (i.e. all tasks use the same evaluator). OFF is NYI [Default=ON]
+* `LIBINT2_ENABLE_UNROLLING` - G - Unroll shell sets into integrals (will unroll shell sets larger than N) (0 for never, N for N, 1000000000 for always). [Default=100]
 * `LIBINT_ALIGN_SIZE` - G - If posix_memalign is available, this will specify alignment of Libint data, in units of sizeof(LIBINT2_REALTYPE). Default is to use built-in heuristics: system-determined for vectorization off (default) or veclen * sizeof(LIBINT2_REALTYPE) for vectorization on. (experts only). [Default=0]
-* `LIBINT_GENERATE_FMA` - G - Generate FMA (fused multiply-add) instructions (to benefit must have FMA-capable hardware and compiler). [Default=OFF]
-* `LIBINT_ENABLE_GENERIC_CODE` - G - Use manually-written generic code. [Default=OFF]
-* `LIBINT_API_PREFIX` - G - Prepend this string to every name in the library API (except for the types). [Default=OFF]
-* `LIBINT_VECTOR_LENGTH` - G - Compute integrals in vectors of length N. [Default=OFF]
-* `LIBINT_VECTOR_METHOD` - G - Specifies how to vectorize integrals. Irrelevant when `LIBINT_VECTOR_LENGTH=OFF. Allowed values are 'block' and 'line'.  [Default=block]
-* `LIBINT_ACCUM_INTS` - G - Accumulate integrals to the buffer, rather than copy (OFF for copy, ON for accum). [Default=OFF]
-* `LIBINT_FLOP_COUNT` - G - Support (approximate) FLOP counting by the library. (Generated code will require C++11!). [Default=OFF]
-* `LIBINT_PROFILE` - G - Turn on profiling instrumentation of the library. (Generated code will require C++11!). [Default=OFF]
+* `LIBINT2_GENERATE_FMA` - G - Generate FMA (fused multiply-add) instructions (to benefit must have FMA-capable hardware and compiler). [Default=OFF]
+* `LIBINT2_ENABLE_GENERIC_CODE` - G - Use manually-written generic code. [Default=OFF]
+* `LIBINT2_API_PREFIX` - G - Prepend this string to every name in the library API (except for the types). [Default=OFF]
+* `LIBINT2_VECTOR_LENGTH` - G - Compute integrals in vectors of length N. [Default=OFF]
+* `LIBINT2_VECTOR_METHOD` - G - Specifies how to vectorize integrals. Irrelevant when `LIBINT2_VECTOR_LENGTH=OFF. Allowed values are 'block' and 'line'.  [Default=block]
+* `LIBINT2_ACCUM_INTS` - G - Accumulate integrals to the buffer, rather than copy (OFF for copy, ON for accum). [Default=OFF]
+* `LIBINT2_FLOP_COUNT` - G - Support (approximate) FLOP counting by the library. (Generated code will require C++11!). [Default=OFF]
+* `LIBINT2_PROFILE` - G - Turn on profiling instrumentation of the library. (Generated code will require C++11!). [Default=OFF]
 
 -----------------------------------------------------------------------------
 
@@ -399,54 +399,54 @@ Note that options, docs, and CMake components are focused on the C++ interface, 
 * Notes
   * Multiple option names can be from any long-lived branch but usually libtool+cmake --> final cmake+cmake.
 
-* `--enable-1body=N` --> `-D ENABLE_ONEBODY=N`
-* `--enable-eri=N` --> `-D ENABLE_ERI=N`
-* `--disable-eri` --> `-D ENABLE_ERI=-1`
-* `--enable-eri3=N` --> `-D ENABLE_ERI3=N`
-* `--enable-eri2=N` --> `-D ENABLE_ERI2=N`
+* `--enable-1body=N` --> `-D LIBINT2_ENABLE_ONEBODY=N`
+* `--enable-eri=N` --> `-D LIBINT2_ENABLE_ERI=N`
+* `--disable-eri` --> `-D LIBINT2_ENABLE_ERI=-1`
+* `--enable-eri3=N` --> `-D LIBINT2_ENABLE_ERI3=N`
+* `--enable-eri2=N` --> `-D LIBINT2_ENABLE_ERI2=N`
 
 * `--with-shgauss-ordering=label` --> `-D LIBINT2_SHGAUSS_ORDERING=label`
 * `--with-cartgauss-ordering=label` --> `-D LIBINT2_CARTGAUSS_ORDERING=label`
 * `--with-shell-set=label` --> `-D LIBINT2_SHELL_SET=label`
-* `--enable-eri3-pure-sh` --> `-D ERI3_PURE_SH=ON`
-* `--enable-eri2-pure-sh` --> `-D ERI2_PURE_SH=ON`
+* `--enable-eri3-pure-sh` --> `-D LIBINT2_ERI3_PURE_SH=ON`
+* `--enable-eri2-pure-sh` --> `-D LIBINT2_ERI2_PURE_SH=ON`
 
-* `--with-max-am=N` --> `-D WITH_MAX_AM=N`
-* `--with-max-am=N0,N1,N2` --> `-D WITH_MAX_AM="N0;N1;N2"` (notice semicolons and quotes. This is standard CMake list syntax)
-* `--with-opt-am=N` --> `-D WITH_OPT_AM=N`
-* `--with-opt-am=N0,N1,N2` --> `-D WITH_OPT_AM="N0;N1;N2"`
+* `--with-max-am=N` --> `-D LIBINT2_MAX_AM=N`
+* `--with-max-am=N0,N1,N2` --> `-D LIBINT2_MAX_AM="N0;N1;N2"` (notice semicolons and quotes. This is standard CMake list syntax)
+* `--with-opt-am=N` --> `-D LIBINT2_OPT_AM=N`
+* `--with-opt-am=N0,N1,N2` --> `-D LIBINT2_OPT_AM="N0;N1;N2"`
 
-* `--with-multipole-max-order=N` --> `-D MULTIPOLE_MAX_ORDER=N`
+* `--with-multipole-max-order=N` --> `-D LIBINT2_MULTIPOLE_MAX_ORDER=N`
 
-* `--with-1body-max-am=N` --> `-D WITH_ONEBODY_MAX_AM=N`
-* `--with-1body-max-am=N0,N1,N2` --> `-D WITH_ONEBODY_MAX_AM="N0;N1;N2"`
-* `--with-1body-opt-am=N` --> `-D WITH_ONEBODY_OPT_AM=N`
-* `--with-1body-opt-am=N0,N1,N2` --> `-D WITH_ONEBODY_OPT_AM="N0;N1;N2"`
+* `--with-1body-max-am=N` --> `-D LIBINT2_ONEBODY_MAX_AM=N`
+* `--with-1body-max-am=N0,N1,N2` --> `-D LIBINT2_ONEBODY_MAX_AM="N0;N1;N2"`
+* `--with-1body-opt-am=N` --> `-D LIBINT2_ONEBODY_OPT_AM=N`
+* `--with-1body-opt-am=N0,N1,N2` --> `-D LIBINT2_ONEBODY_OPT_AM="N0;N1;N2"`
 
-* `--with-eri-max-am=N` --> `-D WITH_ERI_MAX_AM=N`
-* `--with-eri-max-am=N0,N1,N2` --> `-D WITH_ERI_MAX_AM="N0;N1;N2"`
-* `--with-eri-opt-am=N` --> `-D WITH_ERI_OPT_AM=N`
-* `--with-eri-opt-am=N0,N1,N2` --> `-D WITH_ERI_OPT_AM="N0;N1;N2"`
+* `--with-eri-max-am=N` --> `-D LIBINT2_ERI_MAX_AM=N`
+* `--with-eri-max-am=N0,N1,N2` --> `-D LIBINT2_ERI_MAX_AM="N0;N1;N2"`
+* `--with-eri-opt-am=N` --> `-D LIBINT2_ERI_OPT_AM=N`
+* `--with-eri-opt-am=N0,N1,N2` --> `-D LIBINT2_ERI_OPT_AM="N0;N1;N2"`
 
-* `--with-eri3-max-am=N` --> `-D WITH_ERI3_MAX_AM=N`
-* `--with-eri3-max-am=N0,N1,N2` --> `-D WITH_ERI3_MAX_AM="N0;N1;N2"`
-* `--with-eri3-opt-am=N` --> `-D WITH_ERI3_OPT_AM=N`
-* `--with-eri3-opt-am=N0,N1,N2` --> `-D WITH_ERI3_OPT_AM="N0;N1;N2"`
+* `--with-eri3-max-am=N` --> `-D LIBINT2_ERI3_MAX_AM=N`
+* `--with-eri3-max-am=N0,N1,N2` --> `-D LIBINT2_ERI3_MAX_AM="N0;N1;N2"`
+* `--with-eri3-opt-am=N` --> `-D LIBINT2_ERI3_OPT_AM=N`
+* `--with-eri3-opt-am=N0,N1,N2` --> `-D LIBINT2_ERI3_OPT_AM="N0;N1;N2"`
 
-* `--with-eri2-max-am=N` --> `-D WITH_ERI2_MAX_AM=N`
-* `--with-eri2-max-am=N0,N1,N2` --> `-D WITH_ERI2_MAX_AM="N0;N1;N2"`
-* `--with-eri2-opt-am=N` --> `-D WITH_ERI2_OPT_AM=N`
-* `--with-eri2-opt-am=N0,N1,N2` --> `-D WITH_ERI2_OPT_AM="N0;N1;N2"`
+* `--with-eri2-max-am=N` --> `-D LIBINT2_ERI2_MAX_AM=N`
+* `--with-eri2-max-am=N0,N1,N2` --> `-D LIBINT2_ERI2_MAX_AM="N0;N1;N2"`
+* `--with-eri2-opt-am=N` --> `-D LIBINT2_ERI2_OPT_AM=N`
+* `--with-eri2-opt-am=N0,N1,N2` --> `-D LIBINT2_ERI2_OPT_AM="N0;N1;N2"`
 
-* `--enable-g12=N` --> `-D ENABLE_G12=N`
-* `--enable-g12dkh=N` --> `-D ENABLE_G12DKH`
-* `--disable-t1g12-support` --> `-D ENABLE_T1G12_SUPPORT=OFF`
-* `--with-g12-max-am=N` --> `-D WITH_G12_MAX_AM=N`
-* `--with-g12-opt-am=N` --> `-D WITH_G12_OPT_AM=N`
-* `--with-g12dkh-max-am=N` --> `-D WITH_G12DKH_MAX_AM=N`
-* `--with-g12dkh-opt-am=N` --> `-D WITH_G12DKH_OPT_AM=N`
+* `--enable-g12=N` --> `-D LIBINT2_ENABLE_G12=N`
+* `--enable-g12dkh=N` --> `-D LIBINT2_ENABLE_G12DKH`
+* `--disable-t1g12-support` --> `-D LIBINT2_ENABLE_T1G12=OFF`
+* `--with-g12-max-am=N` --> `-D LIBINT2_G12_MAX_AM=N`
+* `--with-g12-opt-am=N` --> `-D LIBINT2_G12_OPT_AM=N`
+* `--with-g12dkh-max-am=N` --> `-D LIBINT2_G12DKH_MAX_AM=N`
+* `--with-g12dkh-opt-am=N` --> `-D LIBINT2_G12DKH_OPT_AM=N`
 
-* `--disable-1body-property-derivs` --> `-D DISABLE_ONEBODY_PROPERTY_DERIVS=ON`
+* `--disable-1body-property-derivs` --> `-D LIBINT2_DISABLE_ONEBODY_PROPERTY_DERIVS=ON`
 
 * `--enable-shared` --> `-D BUILD_SHARED=ON` --> `-D BUILD_SHARED_LIBS=ON` (standard CMake variable)
 * `--enable-static` --> `-D BUILD_STATIC=ON` --> `-D BUILD_SHARED_LIBS=OFF` (standard CMake variable)
@@ -468,24 +468,24 @@ Note that options, docs, and CMake components are focused on the C++ interface, 
 
 * Defunct as non-CMake-like: `--build`, `--host`, `--target`,
 
-* `--with-api-prefix=pfx` --> `-D LIBINT_API_PREFIX=pfx`
-* `--enable-unrolling=yes` --> `-D LIBINT_ENABLE_UNROLLING=1000000000`
-* `--enable-unrolling=no` --> `-D LIBINT_ENABLE_UNROLLING=0`
-* `--enable-unrolling=S` --> `-D LIBINT_ENABLE_UNROLLING=S`
-* `--enable-generic-code` --> `-D LIBINT_ENABLE_GENERIC_CODE=ON`
-* `--with-vector-length=N` --> `-D LIBINT_VECTOR_LENGTH=N`
-* `--with-vector-method=choice` --> `-D LIBINT_VECTOR_METHOD=choice`
+* `--with-api-prefix=pfx` --> `-D LIBINT2_API_PREFIX=pfx`
+* `--enable-unrolling=yes` --> `-D LIBINT2_ENABLE_UNROLLING=1000000000`
+* `--enable-unrolling=no` --> `-D LIBINT2_ENABLE_UNROLLING=0`
+* `--enable-unrolling=S` --> `-D LIBINT2_ENABLE_UNROLLING=S`
+* `--enable-generic-code` --> `-D LIBINT2_ENABLE_GENERIC_CODE=ON`
+* `--with-vector-length=N` --> `-D LIBINT2_VECTOR_LENGTH=N`
+* `--with-vector-method=choice` --> `-D LIBINT2_VECTOR_METHOD=choice`
 * `--with-align-size=N` --> `-D LIBINT_ALIGN_SIZE=N` (G) (`-D LIBINT2_ALIGN_SIZE=N` for L)
-* `--enable-fma` --> `-D LIBINT_GENERATE_FMA=ON`
-* `--enable-accum-ints` --> `-D LIBINT_ACCUM_INTS=ON`
-* `--enable-flop-counter` -> `-D LIBINT_FLOP_COUNT=ON`
-* `--enable-profile` --> `-D LIBINT_PROFILE=ON`
-* `--disable-contracted-ints` --> `-D LIBINT_CONTRACTED_INTS=OFF`
-* `--disable-single-evaltype` --> `-D LIBINT_SINGLE_EVALTYPE=OFF` (NYI)
-* `--enable-composite-evaluators` --> `-D LIBINT_USE_COMPOSITE_EVALUATORS=ON`
-* `--disable-composite-evaluators` --> `-D LIBINT_USE_COMPOSITE_EVALUATORS=OFF`
-* `--with-eri-strategy=OS` --> `-D LIBINT_ERI_STRATEGY=0`
-* `--with-eri-strategy=HL` --> `-D LIBINT_ERI_STRATEGY=2`
+* `--enable-fma` --> `-D LIBINT2_GENERATE_FMA=ON`
+* `--enable-accum-ints` --> `-D LIBINT2_ACCUM_INTS=ON`
+* `--enable-flop-counter` -> `-D LIBINT2_FLOP_COUNT=ON`
+* `--enable-profile` --> `-D LIBINT2_PROFILE=ON`
+* `--disable-contracted-ints` --> `-D LIBINT2_CONTRACTED_INTS=OFF`
+* `--disable-single-evaltype` --> `-D LIBINT2_SINGLE_EVALTYPE=OFF` (NYI)
+* `--enable-composite-evaluators` --> `-D LIBINT2_USE_COMPOSITE_EVALUATORS=ON`
+* `--disable-composite-evaluators` --> `-D LIBINT2_USE_COMPOSITE_EVALUATORS=OFF`
+* `--with-eri-strategy=OS` --> `-D LIBINT2_ERI_STRATEGY=0`
+* `--with-eri-strategy=HL` --> `-D LIBINT2_ERI_STRATEGY=2`
 * `--with-real-type=type` --> `-D LIBINT2_REALTYPE=type`
 * `--with-real-type-inclues=inc` --> `-D LIBINT_USER_DEFINED_REAL_INCLUDES="#include <stdio.h>"`
 
@@ -587,7 +587,7 @@ Eventually, these will be CMake Components, too.
                      "h" (h=spdfghikl...) and derivative order "D" (D=0,1,2,...).
                      For example, the presence of "eri_ffff_d1" means 4-center gradient ints are
                      available for L=3. That is, the library was configured with at least
-                     '-D ENABLE_ERI=1 -D WITH_ERI_MAX_AM="?;>=3"'.
+                     '-D LIBINT2_ENABLE_ERI=1 -D LIBINT2_ERI_MAX_AM="?;>=3"'.
    eri_hhL_dD      - library includes 2-body integrals with 3 centers and max angular momentum up to
    eri_hhl_dD        Cartesian "h" for the two paired centers and Cartesian "l" or solid harmonics "L"
                      for the unpaired/fitting center, (h/l=spdfghikl..., L=SPDFGHIKL...; l>=h
@@ -596,9 +596,9 @@ Eventually, these will be CMake Components, too.
                      solid harmonics are assumed for 3-center ints, "eri_hhl_dD" will *not be available*.
                      For example, the presence of "eri_ffG_d0" means 3-center energy ints are
                      available for L=3 (paired centers) and L=4 (fitting center). That is, the library
-                     was configured with at least "-D ENABLE_ERI3=0 -D WITH_MAX_AM=3 -D WITH_ERI3_MAX_AM=4".
+                     was configured with at least "-D LIBINT2_ENABLE_ERI3=0 -D LIBINT2_MAX_AM=3 -D LIBINT2_ERI3_MAX_AM=4".
                      The presence of "eri_ffg_d0" means the library configuration did not additionally
-                     include "-D ERI3_PURE_SH=ON".
+                     include "-D LIBINT2_ERI3_PURE_SH=ON".
    eri_HH_dD       - library includes 2-body integrals with 2 centers and max angular momentum up to
    eri_hh_dD         Cartesian "h" or solid harmonics "H", (h=spdfghikl..., H=SPDFGHIKL...; s,p,S,P not
                      enumerated) and derivative order "D" (D=0,1,2,...). The "eri_HH_dD" component is
@@ -606,8 +606,8 @@ Eventually, these will be CMake Components, too.
                      assumed for 2-center ints, "eri_hh_dD" will *not be available*.
                      For example, the presence of "eri_FF_d2" means 2-center Hessian ints are
                      available for L=3. That is, the library was configured with at least
-                     '-D ENABLE_ERI2=2 -D WITH_ERI2_MAX_AM="?;?;>=3"'. The presence of "eri_ff_d2" means the
-                     library configuration did not additionally include "-D ERI2_PURE_SH=ON".
+                     '-D LIBINT2_ENABLE_ERI2=2 -D LIBINT2_ERI2_MAX_AM="?;?;>=3"'. The presence of "eri_ff_d2" means the
+                     library configuration did not additionally include "-D LIBINT2_ERI2_PURE_SH=ON".
    g12_hhhh_dD     - library includes F12 integrals with Gaussian factors and max angular momentum up to
                      "h" (h=spdfghikl...) and derivative order "D" (D=0,1,2,...).
                      For example, the presence of "g12_iiii_d2" means g12 Hessian ints are available for L=6.

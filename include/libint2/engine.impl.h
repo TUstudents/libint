@@ -661,22 +661,22 @@ __libint2_engine_inline void Engine::initialize(size_t max_nprim) {
          "exceeded the max derivative order of the library");
 
   // validate braket
-#ifndef INCLUDE_ONEBODY
+#ifndef LIBINT_INCLUDE_ONEBODY
   assert(braket_ != BraKet::x_x &&
          "this braket type not supported by the library; give --enable-1body "
          "to configure");
 #endif
-#ifndef INCLUDE_ERI
+#ifndef LIBINT_INCLUDE_ERI
   assert(braket_ != BraKet::xx_xx &&
          "this braket type not supported by the library; give --enable-eri to "
          "configure");
 #endif
-#ifndef INCLUDE_ERI3
+#ifndef LIBINT_INCLUDE_ERI3
   assert((braket_ != BraKet::xs_xx && braket_ != BraKet::xx_xs) &&
          "this braket type not supported by the library; give --enable-eri3 to "
          "configure");
 #endif
-#ifndef INCLUDE_ERI2
+#ifndef LIBINT_INCLUDE_ERI2
   assert(braket_ != BraKet::xs_xs &&
          "this braket type not supported by the library; give --enable-eri2 to "
          "configure");

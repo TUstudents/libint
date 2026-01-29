@@ -57,18 +57,18 @@ jobs:
         -D BUILD_SHARED_LIBS=${{ matrix.build_shared_libs }}
         -D LIBINT2_BUILD_LIBRARY_AS_SUBPROJECT=${{ matrix.subproject }}
         -D CMAKE_INSTALL_PREFIX=${{github.workspace}}/build/library
-        -D WITH_MAX_AM=2;2
-        -D WITH_ERI_MAX_AM=2;2
-        -D WITH_ERI3_MAX_AM=3;2
-        -D ENABLE_ERI=1
-        -D ENABLE_ERI3=1
-        -D ENABLE_ONEBODY=1
-        -D DISABLE_ONEBODY_PROPERTY_DERIVS=ON
-        -D MULTIPOLE_MAX_ORDER=2
+        -D LIBINT2_MAX_AM=2;2
+        -D LIBINT2_ERI_MAX_AM=2;2
+        -D LIBINT2_ERI3_MAX_AM=3;2
+        -D LIBINT2_ENABLE_ERI=1
+        -D LIBINT2_ENABLE_ERI3=1
+        -D LIBINT2_ENABLE_ONEBODY=1
+        -D LIBINT2_DISABLE_ONEBODY_PROPERTY_DERIVS=ON
+        -D LIBINT2_MULTIPOLE_MAX_ORDER=2
         -D LIBINT2_REQUIRE_CXX_API_COMPILED=ON
         -D LIBINT2_ENABLE_FORTRAN=${{ matrix.do_fortran }}
         -D LIBINT2_ENABLE_PYTHON=ON
-        -D EXPORT_COMPRESSOR=${{ matrix.compressor }}
+        -D LIBINT2_EXPORT_COMPRESSOR=${{ matrix.compressor }}
 
     outputs:
       should_skip: ${{ steps.skip_check.outputs.should_skip }}

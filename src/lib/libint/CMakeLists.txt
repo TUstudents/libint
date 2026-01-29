@@ -73,11 +73,11 @@ add_custom_target(libint-library-populate DEPENDS ${EXPORT_STAGE_DIR}/CMakeLists
 
 # <<<  Export The Library Source  >>>
 
-set(EXPORT_TARBALL "${EXPORT_STAGE_DIR}.${EXPORT_COMPRESSOR_EXT}")
+set(EXPORT_TARBALL "${EXPORT_STAGE_DIR}.${LIBINT_EXPORT_COMPRESSOR_EXT}")
 add_custom_command(
   OUTPUT
     "${EXPORT_TARBALL}"
-  COMMAND ${CMAKE_COMMAND} -E tar ${EXPORT_COMPRESSOR_CMD} "${EXPORT_TARBALL}" "${EXPORT_STAGE_DIR}"
+  COMMAND ${CMAKE_COMMAND} -E tar ${LIBINT_EXPORT_COMPRESSOR_CMD} "${EXPORT_TARBALL}" "${EXPORT_STAGE_DIR}"
   DEPENDS
     libint-library-generate
     libint-library-populate

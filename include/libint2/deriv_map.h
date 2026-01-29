@@ -56,10 +56,10 @@ class DerivMapGenerator {
     max_deriv_order = LIBINT2_MAX_DERIV_ORDER;
 #else  // defined(LIBINT2_MAX_DERIV_ORDER)
 #ifdef INCLUDE_ERI
-    if (INCLUDE_ERI > max_deriv_order) max_deriv_order = INCLUDE_ERI;
+    if (LIBINT_INCLUDE_ERI > max_deriv_order) max_deriv_order = INCLUDE_ERI;
 #endif  // INCLUDE_ERI
 #ifdef INCLUDE_ERI3
-    if (INCLUDE_ERI3 > max_deriv_order) max_deriv_order = INCLUDE_ERI3;
+    if (LIBINT_INCLUDE_ERI3 > max_deriv_order) max_deriv_order = INCLUDE_ERI3;
 #endif  // INCLUDE_ERI3
 #endif  // defined(LIBINT2_MAX_DERIV_ORDER)
     for (int d = 1; d <= max_deriv_order; ++d) {
