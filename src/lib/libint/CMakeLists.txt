@@ -41,7 +41,7 @@ configure_file(
 #   CMAKE_INSTALL_PREFIX
 # * gets re-re-positioned (end of this file) for case of continuous generator +
 #   library build (through EP) with outer CMAKE_INSTALL_PREFIX
-set(DATADIR_ABSOLUTE ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/libint/${LIBINT_VERSION})
+set(LIBINT_DATADIR_ABSOLUTE ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/libint/${LIBINT_VERSION})
 configure_file(
   "${PROJECT_SOURCE_DIR}/include/libint2/basis.h.in"  # TODO basis.h.cmake.in after libtool retires
   "include/libint2/basis.h"
@@ -226,10 +226,10 @@ else()
         )
     endforeach()
 
-    # generate basis.h at install time so DATADIR_ABSOLUTE reflects any --prefix override
+    # generate basis.h at install time so LIBINT_DATADIR_ABSOLUTE reflects any --prefix override
     install(CODE "
       set(LIBINT_VERSION \"${LIBINT_VERSION}\")
-      set(DATADIR_ABSOLUTE \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/libint/${LIBINT_VERSION}\")
+      set(LIBINT_DATADIR_ABSOLUTE \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/libint/${LIBINT_VERSION}\")
       configure_file(
         \"${PROJECT_SOURCE_DIR}/include/libint2/basis.h.in\"
         \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}/libint2/basis.h\"
