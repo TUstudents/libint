@@ -23,7 +23,7 @@ file(
 
 file(
   INSTALL
-    "${PROJECT_SOURCE_DIR}/tests/"
+    "${PROJECT_SOURCE_DIR}/export/tests/"
   DESTINATION "${EXPORT_STAGE_DIR}/tests"
   FILES_MATCHING
     PATTERN "*.c"

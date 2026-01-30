@@ -190,9 +190,9 @@ jobs:
         add_executable(hf++ hartree-fock++.cc)
         target_link_libraries(hf++ Libint2::cxx Threads::Threads)
         EOF
-        cp ${{github.workspace}}/tests/hartree-fock/hartree-fock++.cc .
-        cp ${{github.workspace}}/tests/hartree-fock/h2o_rotated.xyz .
-        cp ${{github.workspace}}/tests/hartree-fock/hartree-fock++-validate.py .
+        cp ${{github.workspace}}/export/tests/hartree-fock/hartree-fock++.cc .
+        cp ${{github.workspace}}/export/tests/hartree-fock/h2o_rotated.xyz .
+        cp ${{github.workspace}}/export/tests/hartree-fock/hartree-fock++-validate.py .
         cp ${{github.workspace}}/build/compiler/build/libint-*/features .
         cmake -S . -B build -G Ninja \
           -D CMAKE_PREFIX_PATH="${{github.workspace}}/build/library;/opt/homebrew/opt/eigen@3"
