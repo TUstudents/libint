@@ -104,7 +104,7 @@ file(
 
 file(
   INSTALL
-    "${PROJECT_SOURCE_DIR}/python/"
+    "${PROJECT_SOURCE_DIR}/export/python/"
   DESTINATION "${EXPORT_STAGE_DIR}/python"
   FILES_MATCHING
     PATTERN "*.h"
