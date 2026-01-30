@@ -64,7 +64,7 @@ file(
 
 file(
   INSTALL
-    "${PROJECT_SOURCE_DIR}/lib/basis/"
+    "${PROJECT_SOURCE_DIR}/export/lib/basis/"
   DESTINATION "${EXPORT_STAGE_DIR}/lib/basis"
   FILES_MATCHING
     PATTERN "*.g94"
@@ -76,17 +76,17 @@ file(
 #   the symlinked files into real files, which is what libtool effectively did.
 file(
   COPY_FILE
-    "${PROJECT_SOURCE_DIR}/lib/basis/6-31gs.g94"
+    "${PROJECT_SOURCE_DIR}/export/lib/basis/6-31gs.g94"
     "${EXPORT_STAGE_DIR}/lib/basis/6-31gs.g94"
   )
 file(
   COPY_FILE
-    "${PROJECT_SOURCE_DIR}/lib/basis/6-31gss.g94"
+    "${PROJECT_SOURCE_DIR}/export/lib/basis/6-31gss.g94"
     "${EXPORT_STAGE_DIR}/lib/basis/6-31gss.g94"
   )
 file(
   COPY_FILE
-    "${PROJECT_SOURCE_DIR}/lib/basis/6-311gss.g94"
+    "${PROJECT_SOURCE_DIR}/export/lib/basis/6-311gss.g94"
     "${EXPORT_STAGE_DIR}/lib/basis/6-311gss.g94"
   )
 
