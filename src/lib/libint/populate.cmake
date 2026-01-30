@@ -200,8 +200,8 @@ file(
 
 file(
   INSTALL
-    "${PROJECT_SOURCE_DIR}/src/lib/libint/engine.cpp"
-    "${PROJECT_SOURCE_DIR}/src/lib/libint/configuration.cc.cmake.in"
+    "${PROJECT_SOURCE_DIR}/export/engine.cpp"
+    "${PROJECT_SOURCE_DIR}/export/configuration.cc.cmake.in"
   DESTINATION "${EXPORT_STAGE_DIR}/src"
   )
 
@@ -234,6 +234,6 @@ file(
   )
 
 configure_file(
-  "${LIBRARY_SOURCE_DIR}/CMakeLists.txt.export"
+  "${PROJECT_SOURCE_DIR}/export/CMakeLists.txt.export"
   "${EXPORT_STAGE_DIR}/CMakeLists.txt"
   COPYONLY)

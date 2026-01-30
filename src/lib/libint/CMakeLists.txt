@@ -60,7 +60,7 @@ add_custom_command(
           -P ${CMAKE_CURRENT_SOURCE_DIR}/populate.cmake
   DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/populate.cmake"
-    "${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt.export"
+    "${PROJECT_SOURCE_DIR}/export/CMakeLists.txt.export"
     "${PROJECT_SOURCE_DIR}/cmake/libint2-config.cmake.in"
     "${PROJECT_BINARY_DIR}/generated/libint2_params.h"
     "${PROJECT_BINARY_DIR}/generated/HRRPart0bra0ket0pp.h"

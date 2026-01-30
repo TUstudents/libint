@@ -387,7 +387,7 @@ Note that options, docs, and CMake components are focused on the C++ interface, 
 
 [^15]: Targets for library consumer use. These are available after `find_package(Libint2)` or `add_subdirectory()`.
 [^16]: Ensure target found in installation after `find_package(Libint2 COMPONENTS ...)`.
-[^17]: Targets in src/lib/libint/CMakeLists.txt.export . Names subject to change. Use namespaced target names in any consuming code.
+[^17]: Targets in export/CMakeLists.txt.export . Names subject to change. Use namespaced target names in any consuming code.
 [^18]: Deprecated legacy aliases. Update any uses to namespaced target.
 [^19]: The `libint_f` internal target defines the Fortran interface to Libint2. One must also link to `Libint2::int2` or `Libint2::cxx`. At present, it is not exported, and a namespaced target is not defined.
 
