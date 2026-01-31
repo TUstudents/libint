@@ -40,7 +40,7 @@ if os.path.exists(path_to_libfeatures):
 else:
     sys.exit(2)
 
-# ignore test if ERI_MAX_AM  is too low
+# ignore test if LIBINT_ERI_MAX_AM  is too low
 if LIBINT_ERI_MAX_AM<2:
     sys.exit(0)
 
@@ -174,5 +174,3 @@ if len(sys.argv) > 2:
     instr.close()
 ok = eok and muok and Qok and F1ok and FPok and F2ok and FNok and Fok and H1ok and HPok and H2ok and HNok and Hok and smuok and sQok
 if not ok: sys.exit(1)
-
-

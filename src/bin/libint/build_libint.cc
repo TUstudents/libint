@@ -612,29 +612,31 @@ void try_main(int argc, char* argv[]) {
 
 #ifdef LIBINT_INCLUDE_ONEBODY
   for (unsigned int d = 0; d <= LIBINT_INCLUDE_ONEBODY; ++d) {
-#if defined(ONEBODY_MAX_AM_LIST)
+#if defined(LIBINT_ONEBODY_MAX_AM_LIST)
 #define BOOST_PP_ONEBODY_MCR2(r, data, elem)   \
   cparams->max_am(                             \
       task_label(BOOST_PP_STRINGIZE(elem), d), \
-                 token<unsigned int>(ONEBODY_MAX_AM_LIST, ',', d));
+                 token<unsigned int>(LIBINT_ONEBODY_MAX_AM_LIST, ',', d));
     BOOST_PP_LIST_FOR_EACH(BOOST_PP_ONEBODY_MCR2, _, BOOST_PP_ONEBODY_TASK_LIST)
 #undef BOOST_PP_ONEBODY_MCR2
-#elif defined(ONEBODY_MAX_AM)
-#define BOOST_PP_ONEBODY_MCR3(r, data, elem) \
-  cparams->max_am(task_label(BOOST_PP_STRINGIZE(elem), d), ONEBODY_MAX_AM);
+#elif defined(LIBINT_ONEBODY_MAX_AM)
+#define BOOST_PP_ONEBODY_MCR3(r, data, elem)               \
+  cparams->max_am(task_label(BOOST_PP_STRINGIZE(elem), d), \
+                             LIBINT_ONEBODY_MAX_AM);
     BOOST_PP_LIST_FOR_EACH(BOOST_PP_ONEBODY_MCR3, _, BOOST_PP_ONEBODY_TASK_LIST)
 #undef BOOST_PP_ONEBODY_MCR3
 #endif
-#if defined(ONEBODY_OPT_AM_LIST)
+#if defined(LIBINT_ONEBODY_OPT_AM_LIST)
 #define BOOST_PP_ONEBODY_MCR4(r, data, elem)   \
   cparams->max_am_opt(                         \
       task_label(BOOST_PP_STRINGIZE(elem), d), \
-                 token<unsigned int>(ONEBODY_OPT_AM_LIST, ',', d));
+                 token<unsigned int>(LIBINT_ONEBODY_OPT_AM_LIST, ',', d));
     BOOST_PP_LIST_FOR_EACH(BOOST_PP_ONEBODY_MCR4, _, BOOST_PP_ONEBODY_TASK_LIST)
 #undef BOOST_PP_ONEBODY_MCR4
-#elif defined(ONEBODY_OPT_AM)
-#define BOOST_PP_ONEBODY_MCR5(r, data, elem) \
-  cparams->max_am_opt(task_label(BOOST_PP_STRINGIZE(elem), d), ONEBODY_OPT_AM);
+#elif defined(LIBINT_ONEBODY_OPT_AM)
+#define BOOST_PP_ONEBODY_MCR5(r, data, elem)                   \
+  cparams->max_am_opt(task_label(BOOST_PP_STRINGIZE(elem), d), \
+                                 LIBINT_ONEBODY_OPT_AM);
     BOOST_PP_LIST_FOR_EACH(BOOST_PP_ONEBODY_MCR5, _, BOOST_PP_ONEBODY_TASK_LIST)
 #undef BOOST_PP_ONEBODY_MCR5
 #endif
@@ -649,17 +651,17 @@ void try_main(int argc, char* argv[]) {
 
 #ifdef LIBINT_INCLUDE_ERI
   for (unsigned int d = 0; d <= LIBINT_INCLUDE_ERI; ++d) {
-#if defined(ERI_MAX_AM_LIST)
+#if defined(LIBINT_ERI_MAX_AM_LIST)
     cparams->max_am(task_label("eri", d),
-                    token<unsigned int>(ERI_MAX_AM_LIST, ',', d));
-#elif defined(ERI_MAX_AM)
-    cparams->max_am(task_label("eri", d), ERI_MAX_AM);
+                    token<unsigned int>(LIBINT_ERI_MAX_AM_LIST, ',', d));
+#elif defined(LIBINT_ERI_MAX_AM)
+    cparams->max_am(task_label("eri", d), LIBINT_ERI_MAX_AM);
 #endif
-#if defined(ERI_OPT_AM_LIST)
+#if defined(LIBINT_ERI_OPT_AM_LIST)
     cparams->max_am_opt(task_label("eri", d),
-                        token<unsigned int>(ERI_OPT_AM_LIST, ',', d));
-#elif defined(ERI_OPT_AM)
-    cparams->max_am_opt(task_label("eri", d), ERI_OPT_AM);
+                        token<unsigned int>(LIBINT_ERI_OPT_AM_LIST, ',', d));
+#elif defined(LIBINT_ERI_OPT_AM)
+    cparams->max_am_opt(task_label("eri", d), LIBINT_ERI_OPT_AM);
 #endif
   }
   for (unsigned int d = 0; d <= LIBINT_INCLUDE_ERI; ++d) {
@@ -668,17 +670,17 @@ void try_main(int argc, char* argv[]) {
 #endif
 #ifdef LIBINT_INCLUDE_ERI3
   for (unsigned int d = 0; d <= LIBINT_INCLUDE_ERI3; ++d) {
-#if defined(ERI3_MAX_AM_LIST)
+#if defined(LIBINT_ERI3_MAX_AM_LIST)
     cparams->max_am(task_label("3eri", d),
-                    token<unsigned int>(ERI3_MAX_AM_LIST, ',', d));
-#elif defined(ERI3_MAX_AM)
-    cparams->max_am(task_label("3eri", d), ERI3_MAX_AM);
+                    token<unsigned int>(LIBINT_ERI3_MAX_AM_LIST, ',', d));
+#elif defined(LIBINT_ERI3_MAX_AM)
+    cparams->max_am(task_label("3eri", d), LIBINT_ERI3_MAX_AM);
 #endif
-#if defined(ERI3_OPT_AM_LIST)
+#if defined(LIBINT_ERI3_OPT_AM_LIST)
     cparams->max_am_opt(task_label("3eri", d),
-                        token<unsigned int>(ERI3_OPT_AM_LIST, ',', d));
-#elif defined(ERI3_OPT_AM)
-    cparams->max_am_opt(task_label("3eri", d), ERI3_OPT_AM);
+                        token<unsigned int>(LIBINT_ERI3_OPT_AM_LIST, ',', d));
+#elif defined(LIBINT_ERI3_OPT_AM)
+    cparams->max_am_opt(task_label("3eri", d), LIBINT_ERI3_OPT_AM);
 #endif
 
 #if defined(LIBINT_MAX_AM_LIST)
@@ -697,17 +699,17 @@ void try_main(int argc, char* argv[]) {
 #endif
 #ifdef LIBINT_INCLUDE_ERI2
   for (unsigned int d = 0; d <= LIBINT_INCLUDE_ERI2; ++d) {
-#if defined(ERI2_MAX_AM_LIST)
+#if defined(LIBINT_ERI2_MAX_AM_LIST)
     cparams->max_am(task_label("2eri", d),
-                    token<unsigned int>(ERI2_MAX_AM_LIST, ',', d));
-#elif defined(ERI2_MAX_AM)
-    cparams->max_am(task_label("2eri", d), ERI2_MAX_AM);
+                    token<unsigned int>(LIBINT_ERI2_MAX_AM_LIST, ',', d));
+#elif defined(LIBINT_ERI2_MAX_AM)
+    cparams->max_am(task_label("2eri", d), LIBINT_ERI2_MAX_AM);
 #endif
-#if defined(ERI2_OPT_AM_LIST)
+#if defined(LIBINT_ERI2_OPT_AM_LIST)
     cparams->max_am_opt(task_label("2eri", d),
-                        token<unsigned int>(ERI2_OPT_AM_LIST, ',', d));
-#elif defined(ERI2_OPT_AM)
-    cparams->max_am_opt(task_label("2eri", d), ERI2_OPT_AM);
+                        token<unsigned int>(LIBINT_ERI2_OPT_AM_LIST, ',', d));
+#elif defined(LIBINT_ERI2_OPT_AM)
+    cparams->max_am_opt(task_label("2eri", d), LIBINT_ERI2_OPT_AM);
 #endif
   }
   for (unsigned int d = 0; d <= LIBINT_INCLUDE_ERI2; ++d) {
@@ -715,33 +717,33 @@ void try_main(int argc, char* argv[]) {
   }
 #endif
 #ifdef LIBINT_INCLUDE_G12
-#ifndef G12_MAX_AM
-#define LIBINT_MAX_AM G12_MAX_AM
+#ifndef LIBINT_G12_MAX_AM
+#define LIBINT_MAX_AM LIBINT_G12_MAX_AM
 #endif
-#ifndef G12_OPT_AM
-#define LIBINT_OPT_AM G12_OPT_AM
+#ifndef LIBINT_G12_OPT_AM
+#define LIBINT_OPT_AM LIBINT_G12_OPT_AM
 #endif
-  cparams->max_am("r12kg12", G12_MAX_AM);
-  cparams->max_am_opt("r12kg12", G12_OPT_AM);
+  cparams->max_am("r12kg12", LIBINT_G12_MAX_AM);
+  cparams->max_am_opt("r12kg12", LIBINT_G12_OPT_AM);
   cparams->num_bf("r12kg12", 4);
 #if !LIBINT_USE_COMPOSITE_EVALUATORS
-  cparams->max_am("r12_0_g12", G12_MAX_AM);
-  cparams->max_am_opt("r12_0_g12", G12_OPT_AM);
+  cparams->max_am("r12_0_g12", LIBINT_G12_MAX_AM);
+  cparams->max_am_opt("r12_0_g12", LIBINT_G12_OPT_AM);
   cparams->num_bf("r12_0_g12", 4);
-  cparams->max_am("r12_2_g12", G12_MAX_AM);
-  cparams->max_am_opt("r12_2_g12", G12_OPT_AM);
+  cparams->max_am("r12_2_g12", LIBINT_G12_MAX_AM);
+  cparams->max_am_opt("r12_2_g12", LIBINT_G12_OPT_AM);
   cparams->num_bf("r12_2_g12", 4);
 #endif
 #endif
 #ifdef LIBINT_INCLUDE_G12DKH
-#ifndef G12DKH_MAX_AM
-#define LIBINT_MAX_AM G12DKH_MAX_AM
+#ifndef LIBINT_G12DKH_MAX_AM
+#define LIBINT_MAX_AM LIBINT_G12DKH_MAX_AM
 #endif
-#ifndef G12DKH_OPT_AM
-#define LIBINT_OPT_AM G12DKH_OPT_AM
+#ifndef LIBINT_G12DKH_OPT_AM
+#define LIBINT_OPT_AM LIBINT_G12DKH_OPT_AM
 #endif
-  cparams->max_am("g12dkh", G12DKH_MAX_AM);
-  cparams->max_am_opt("g12dkh", G12DKH_OPT_AM);
+  cparams->max_am("g12dkh", LIBINT_G12DKH_MAX_AM);
+  cparams->max_am_opt("g12dkh", LIBINT_G12DKH_OPT_AM);
 #endif
 #if LIBINT_ENABLE_UNROLLING
   cparams->unroll_threshold(LIBINT_ENABLE_UNROLLING);
@@ -888,7 +890,7 @@ void try_main(int argc, char* argv[]) {
   for (unsigned int d = 0; d <= LIBINT_INCLUDE_ERI3; ++d) {
     build_TwoPRep_1b_2k(os, cparams, iface, d);
   }
-#if ERI3_PURE_SH
+#if LIBINT_ERI3_PURE_SH
   iface->to_params(iface->macro_define("ERI3_PURE_SH", 1));
 #endif
 #endif
@@ -896,7 +898,7 @@ void try_main(int argc, char* argv[]) {
   for (unsigned int d = 0; d <= LIBINT_INCLUDE_ERI2; ++d) {
     build_TwoPRep_1b_1k(os, cparams, iface, d);
   }
-#if ERI2_PURE_SH
+#if LIBINT_ERI2_PURE_SH
   iface->to_params(iface->macro_define("ERI2_PURE_SH", 1));
 #endif
 #endif
@@ -973,7 +975,7 @@ void print_config(std::ostream& os) {
 #endif
 #ifdef LIBINT_INCLUDE_G12
   os << "Will support G12 (commutators = ";
-#if SUPPORT_T1G12
+#if LIBINT_SUPPORT_T1G12
   os << "yes";
 #else
   os << "false";
@@ -1271,7 +1273,7 @@ void build_TwoPRep_1b_2k(std::ostream& os,
           CGShell b = (dummy_center == 1) ? CGShell::unit() : CGShell(lbra);
           CGShell c(lc);
           CGShell d(ld);
-#if ERI3_PURE_SH
+#if LIBINT_ERI3_PURE_SH
           if (dummy_center == 1 && deriv_level == 0) a.pure_sh(true);
           if (dummy_center == 0 && deriv_level == 0) b.pure_sh(true);
 #endif
@@ -1312,7 +1314,7 @@ void build_TwoPRep_1b_2k(std::ostream& os,
           CGShell b = (dummy_center == 1) ? CGShell::unit() : CGShell(lbra);
           CGShell c(lc);
           CGShell d(ld);
-#if ERI3_PURE_SH
+#if LIBINT_ERI3_PURE_SH
           if (dummy_center == 1 && deriv_level == 0) a.pure_sh(true);
           if (dummy_center == 0 && deriv_level == 0) b.pure_sh(true);
 #endif
@@ -1465,7 +1467,7 @@ void build_TwoPRep_1b_1k(std::ostream& os,
         CGShell b = (dummy_center1 == 1) ? CGShell::unit() : CGShell(lbra);
         CGShell c = (dummy_center2 == 2) ? CGShell::unit() : CGShell(lket);
         CGShell d = (dummy_center2 == 3) ? CGShell::unit() : CGShell(lket);
-#if ERI2_PURE_SH
+#if LIBINT_ERI2_PURE_SH
         if (dummy_center1 == 1 && deriv_level == 0) a.pure_sh(true);
         if (dummy_center1 == 0 && deriv_level == 0) b.pure_sh(true);
         if (dummy_center2 == 3 && deriv_level == 0) c.pure_sh(true);
@@ -1508,7 +1510,7 @@ void build_TwoPRep_1b_1k(std::ostream& os,
         CGShell b = (dummy_center1 == 1) ? CGShell::unit() : CGShell(lbra);
         CGShell c = (dummy_center2 == 2) ? CGShell::unit() : CGShell(lket);
         CGShell d = (dummy_center2 == 3) ? CGShell::unit() : CGShell(lket);
-#if ERI2_PURE_SH
+#if LIBINT_ERI2_PURE_SH
         if (dummy_center1 == 1 && deriv_level == 0) a.pure_sh(true);
         if (dummy_center1 == 0 && deriv_level == 0) b.pure_sh(true);
         if (dummy_center2 == 3 && deriv_level == 0) c.pure_sh(true);
@@ -1592,7 +1594,7 @@ void build_R12kG12_2b_2k(std::ostream& os,
   LibraryTaskManager& taskmgr = LibraryTaskManager::Instance();
   taskmgr.current(task);
   iface->to_params(iface->macro_define("MAX_AM_R12kG12", lmax));
-#if SUPPORT_T1G12
+#if LIBINT_SUPPORT_T1G12
   iface->to_params(iface->macro_define("SUPPORT_T1G12", 1));
 #else
   iface->to_params(iface->macro_define("SUPPORT_T1G12", 0));
@@ -1672,7 +1674,7 @@ void build_R12kG12_2b_2k(std::ostream& os,
             dg_xxxx->append_target(abcd_ptr);
           }
 
-#if SUPPORT_T1G12
+#if LIBINT_SUPPORT_T1G12
           // [T_1,G12]
           if (true) {
             typedef TiG12_11_11_sq int_type;
@@ -1786,7 +1788,7 @@ void build_R12kG12_2b_2k_separate(
     std::ostream& os, const std::shared_ptr<CompilationParameters>& cparams,
     std::shared_ptr<Libint2Iface>& iface) {
   // do not support this if the commutator integrals are needed
-#if SUPPORT_T1G12
+#if LIBINT_SUPPORT_T1G12
   assert(false);
 #endif
 

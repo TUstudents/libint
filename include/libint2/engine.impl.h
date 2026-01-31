@@ -1909,7 +1909,7 @@ __libint2_engine_inline const Engine::target_ptr_vec& Engine::compute2(
                "the angular momentum limit is exceeded");
         buildfnidx = (bra1.contr[0].l * ket_lmax + ket1.contr[0].l) * ket_lmax +
                      ket2.contr[0].l;
-#ifdef ERI3_PURE_SH
+#ifdef LIBINT_ERI3_PURE_SH
         if (bra1.contr[0].l > 1)
           assert(bra1.contr[0].pure &&
                  "library assumes a solid harmonics shell in bra of a 3-center "
@@ -1923,7 +1923,7 @@ __libint2_engine_inline const Engine::target_ptr_vec& Engine::compute2(
         assert(ket1.contr[0].l <= hard_lmax_ &&
                "the angular momentum limit is exceeded");
         buildfnidx = bra1.contr[0].l * hard_lmax_ + ket1.contr[0].l;
-#ifdef ERI2_PURE_SH
+#ifdef LIBINT_ERI2_PURE_SH
         if (bra1.contr[0].l > 1)
           assert(bra1.contr[0].pure &&
                  "library assumes solid harmonics shells in a 2-center "
