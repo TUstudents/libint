@@ -320,6 +320,12 @@ endif()
 
 # ====  6 user targets: plain/C++(headers)/C++(compiled) shared/static  =========
 
+set(export_properties
+  "Libint2_VERSION"
+  "Libint2_MAX_AM_ERI"
+  "Libint2_CONFIGURATION"
+  )
+
 if (L2_BUILD_SHARED_LIBS)
 
     add_library(
@@ -351,7 +357,11 @@ if (L2_BUILD_SHARED_LIBS)
       int-shared
       PROPERTIES
         OUTPUT_NAME "int2"
+        Libint2_VERSION "${LIBINT_VERSION}"
+        Libint2_MAX_AM_ERI "${Libint2_MAX_AM_ERI}"
+        Libint2_CONFIGURATION "${Libint2_CONFIG_COMPONENTS}"
       )
+    set_property(TARGET int-shared APPEND PROPERTY EXPORT_PROPERTIES "${export_properties}")
     if (APPLE)
         set_target_properties(
           int-shared
@@ -478,7 +488,11 @@ if (L2_BUILD_STATIC_LIBS)
       int-static
       PROPERTIES
         OUTPUT_NAME "int2"
+        Libint2_VERSION "${LIBINT_VERSION}"
+        Libint2_MAX_AM_ERI "${Libint2_MAX_AM_ERI}"
+        Libint2_CONFIGURATION "${Libint2_CONFIG_COMPONENTS}"
       )
+    set_property(TARGET int-static APPEND PROPERTY EXPORT_PROPERTIES "${export_properties}")
     target_include_directories(
       int-static
       INTERFACE
