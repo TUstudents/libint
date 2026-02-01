@@ -93,6 +93,8 @@ foreach(_eri @Libint2_CONFIG_COMPONENTS@)  # Libint2_CONFIG_COMPONENTS
     set(${L2}_${_eri}_FOUND 1)
 endforeach()
 
+check_required_components(${L2})
+
 # Import library targets
 if(NOT TARGET ${L2}::int-shared AND NOT TARGET ${L2}::int-static)
   include("${CMAKE_CURRENT_LIST_DIR}/${pnv}-targets.cmake")
