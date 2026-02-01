@@ -33,8 +33,9 @@
     "C++11 API does not support with user-defined real types yet; omit --with-real-type when configuring"
 #endif
 
-#if !defined(INCLUDE_ONEBODY) || \
-    !(defined(INCLUDE_ERI) || defined(INCLUDE_ERI3) || defined(INCLUDE_ERI2))
+#if !defined(LIBINT_INCLUDE_ONEBODY) ||                              \
+    !(defined(LIBINT_INCLUDE_ERI) || defined(LIBINT_INCLUDE_ERI3) || \
+      defined(LIBINT_INCLUDE_ERI2))
 #error \
     "C++ API is only supported if both 1-body and some (eri, eri3, eri2) 2-body integrals are enabled"
 #endif

@@ -26,6 +26,8 @@
 #include <graph_registry.h>
 #include <iface.h>
 #include <integral_11_11.h>
+#include <libint2/cgshell_ordering.h>
+#include <libint2/config.h>
 #include <strategy.h>
 
 #include <deque>

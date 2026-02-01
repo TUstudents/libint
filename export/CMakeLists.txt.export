@@ -71,7 +71,7 @@ endif()
 
 option_with_default(LIBINT2_REALTYPE
   "Specifies the floating-point data type used by the library." double)
-option_with_print(LIBINT_USER_DEFINED_REAL_INCLUDES
+option_with_print(LIBINT2_USER_DEFINED_REAL_INCLUDES
   "UNTESTED Additional #includes necessary to use the real type." OFF)
 include(int_userreal)
 
@@ -203,7 +203,7 @@ configure_file(
   src/configuration.cc
   @ONLY)
 
-set(DATADIR_ABSOLUTE ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/libint/${LIBINT_VERSION})
+set(LIBINT_DATADIR_ABSOLUTE ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/libint/${LIBINT_VERSION})
 configure_file(
   include/libint2/basis.h.in  # temp until libtool dropped and moved to basis.h.cmake.in
   include/libint2/basis.h
@@ -320,6 +320,12 @@ endif()
 
 # ====  6 user targets: plain/C++(headers)/C++(compiled) shared/static  =========
 
+set(export_properties
+  "Libint2_VERSION"
+  "Libint2_MAX_AM_ERI"
+  "Libint2_CONFIGURATION"
+  )
+
 if (L2_BUILD_SHARED_LIBS)
 
     add_library(
@@ -351,7 +357,11 @@ if (L2_BUILD_SHARED_LIBS)
       int-shared
       PROPERTIES
         OUTPUT_NAME "int2"
+        Libint2_VERSION "${LIBINT_VERSION}"
+        Libint2_MAX_AM_ERI "${Libint2_MAX_AM_ERI}"
+        Libint2_CONFIGURATION "${Libint2_CONFIG_COMPONENTS}"
       )
+    set_property(TARGET int-shared APPEND PROPERTY EXPORT_PROPERTIES "${export_properties}")
     if (APPLE)
         set_target_properties(
           int-shared
@@ -381,17 +391,17 @@ if (L2_BUILD_SHARED_LIBS)
         target_compile_definitions(
           int-cxx-headeronly-shared
           INTERFACE
-            $<BUILD_INTERFACE:SRCDATADIR="${PROJECT_SOURCE_DIR}/lib/basis">
+            $<BUILD_INTERFACE:LIBINT_SRCDATADIR="${PROJECT_SOURCE_DIR}/lib/basis">
           )
         if (NOT MSVC)
-            # TODO fix the DATADIR define escaping on Windows
+            # TODO fix the LIBINT_DATADIR define escaping on Windows
             # * below works fine in tests
             # * but fails in Psi4 compile
             # * prefix replacement in conda used instead on Windows
             target_compile_definitions(
               int-cxx-headeronly-shared
               INTERFACE
-                $<INSTALL_INTERFACE:DATADIR="\$\{_IMPORT_PREFIX\}/${LIBINT2_INSTALL_DATADIR}">
+                $<INSTALL_INTERFACE:LIBINT_DATADIR="\$\{_IMPORT_PREFIX\}/${LIBINT2_INSTALL_DATADIR}">
               )
         endif()
         target_link_libraries(
@@ -478,7 +488,11 @@ if (L2_BUILD_STATIC_LIBS)
       int-static
       PROPERTIES
         OUTPUT_NAME "int2"
+        Libint2_VERSION "${LIBINT_VERSION}"
+        Libint2_MAX_AM_ERI "${Libint2_MAX_AM_ERI}"
+        Libint2_CONFIGURATION "${Libint2_CONFIG_COMPONENTS}"
       )
+    set_property(TARGET int-static APPEND PROPERTY EXPORT_PROPERTIES "${export_properties}")
     target_include_directories(
       int-static
       INTERFACE
@@ -501,7 +515,7 @@ if (L2_BUILD_STATIC_LIBS)
         target_compile_definitions(
           int-cxx-headeronly-static
           INTERFACE
-            $<BUILD_INTERFACE:SRCDATADIR="${PROJECT_SOURCE_DIR}/lib/basis">
+            $<BUILD_INTERFACE:LIBINT_SRCDATADIR="${PROJECT_SOURCE_DIR}/lib/basis">
           )
         target_link_libraries(
           int-cxx-headeronly-static
@@ -721,9 +735,20 @@ install(
   ARCHIVE DESTINATION "${LIBINT2_INSTALL_LIBDIR}"
   )
 
-# install headers from source tree
+# install public API headers from source tree
+# only install libint2.h, libint2.hpp at include/ root
+# and the libint2/ subdirectory (C++ API headers)
+# do NOT install the generated integral evaluation headers at include/ root
+# (they are only used during library compilation, not by end users)
 install(
-  DIRECTORY ${PROJECT_SOURCE_DIR}/include/
+  FILES
+    ${PROJECT_SOURCE_DIR}/include/libint2.h
+    ${PROJECT_SOURCE_DIR}/include/libint2.hpp
+  DESTINATION "${LIBINT2_INSTALL_INCLUDEDIR}"
+  COMPONENT ${L2}_Development
+  )
+install(
+  DIRECTORY ${PROJECT_SOURCE_DIR}/include/libint2
   DESTINATION "${LIBINT2_INSTALL_INCLUDEDIR}"
   COMPONENT ${L2}_Development
   FILES_MATCHING
@@ -750,10 +775,10 @@ install(
   DESTINATION "${LIBINT2_INSTALL_INCLUDEDIR}/libint2"
   )
 
-# install basis.h at install time so DATADIR_ABSOLUTE reflects any --prefix override
+# install basis.h at install time so LIBINT_DATADIR_ABSOLUTE reflects any --prefix override
 install(CODE "
   set(LIBINT_VERSION \"${LIBINT_VERSION}\")
-  set(DATADIR_ABSOLUTE \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/libint/${LIBINT_VERSION}\")
+  set(LIBINT_DATADIR_ABSOLUTE \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/libint/${LIBINT_VERSION}\")
   configure_file(
     \"${PROJECT_SOURCE_DIR}/include/libint2/basis.h.in\"
     \"\${CMAKE_INSTALL_PREFIX}/${LIBINT2_INSTALL_INCLUDEDIR}/libint2/basis.h\"

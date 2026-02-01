@@ -102,7 +102,7 @@ if (TARGET Libint2::cxx)
         Boost::headers
       )
 else()
-    find_package(Libint2 COMPONENTS CXX_ho REQUIRED)
+    find_package(Libint2 REQUIRED)
     target_link_libraries(libint2-python PRIVATE Libint2::cxx)
 endif()
 

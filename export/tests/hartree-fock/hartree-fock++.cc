@@ -565,7 +565,7 @@ int main(int argc, char* argv[]) {
     // use spherical moments
     auto SMu = compute_1body_ints<Operator::sphemultipole>(obs);
     {
-#if MULTIPOLE_MAX_ORDER > 0
+#if LIBINT_MULTIPOLE_MAX_ORDER > 0
       std::array<double, 3> mu;
       for (int xyz = 0; xyz != 3; ++xyz)
         mu[xyz] = -2 * D.cwiseProduct(SMu[xyz + 1])
@@ -575,7 +575,7 @@ int main(int argc, char* argv[]) {
                 std::ostream_iterator<double>(std::cout, " "));
       std::cout << std::endl;
 #endif
-#if MULTIPOLE_MAX_ORDER > 1
+#if LIBINT_MULTIPOLE_MAX_ORDER > 1
       std::array<double, 5> qu;
       for (int k = 0; k != 5; ++k)
         qu[k] = -2 * D.cwiseProduct(SMu[k + 4])
@@ -585,7 +585,7 @@ int main(int argc, char* argv[]) {
                 std::ostream_iterator<double>(std::cout, " "));
       std::cout << std::endl;
 #endif
-#if MULTIPOLE_MAX_ORDER > 2
+#if LIBINT_MULTIPOLE_MAX_ORDER > 2
       std::array<double, 7> oct;
       for (int k = 0; k != 7; ++k)
         oct[k] = -2 * D.cwiseProduct(SMu[k + 9])

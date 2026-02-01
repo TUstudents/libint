@@ -190,7 +190,7 @@ static void print_config(std::ostream& os);
 static void config_to_api(const std::shared_ptr<CompilationParameters>& cparams,
                           std::shared_ptr<Libint2Iface>& iface);
 
-#ifdef INCLUDE_ERI
+#ifdef LIBINT_INCLUDE_ERI
 #define USE_GENERIC_ERI_BUILD 1
 #if !USE_GENERIC_ERI_BUILD
 static void build_TwoPRep_2b_2k(
@@ -203,19 +203,19 @@ static void build_TwoPRep_2b_2k(
 #endif
 #endif
 
-#ifdef INCLUDE_ERI3
+#ifdef LIBINT_INCLUDE_ERI3
 static void build_TwoPRep_1b_2k(
     std::ostream& os, const std::shared_ptr<CompilationParameters>& cparams,
     std::shared_ptr<Libint2Iface>& iface, unsigned int deriv_level);
 #endif
 
-#ifdef INCLUDE_ERI2
+#ifdef LIBINT_INCLUDE_ERI2
 static void build_TwoPRep_1b_1k(
     std::ostream& os, const std::shared_ptr<CompilationParameters>& cparams,
     std::shared_ptr<Libint2Iface>& iface, unsigned int deriv_level);
 #endif
 
-#ifdef INCLUDE_G12
+#ifdef LIBINT_INCLUDE_G12
 static void build_R12kG12_2b_2k(
     std::ostream& os, const std::shared_ptr<CompilationParameters>& cparams,
     std::shared_ptr<Libint2Iface>& iface);
@@ -224,13 +224,13 @@ static void build_R12kG12_2b_2k_separate(
     std::shared_ptr<Libint2Iface>& iface);
 #endif
 
-#ifdef INCLUDE_G12DKH
+#ifdef LIBINT_INCLUDE_G12DKH
 static void build_G12DKH_2b_2k(
     std::ostream& os, const std::shared_ptr<CompilationParameters>& cparams,
     std::shared_ptr<Libint2Iface>& iface);
 #endif
 
-#ifdef INCLUDE_ONEBODY
+#ifdef LIBINT_INCLUDE_ONEBODY
 
 #if LIBINT_SUPPORT_ONEBODYINTS == 0
 #error \
@@ -306,7 +306,7 @@ void build_onebody_1b_1k(std::ostream& os, std::string label,
   const auto nullaux = typename Onebody_sh_1_1::AuxIndexType(0u);
 
   // optionally skip derivative property ints
-#ifdef DISABLE_ONEBODY_PROPERTY_DERIVS
+#ifdef LIBINT_DISABLE_ONEBODY_PROPERTY_DERIVS
   const auto property_operator =
       !(std::is_same<_OperType, OverlapOper>::value ||
         std::is_same<_OperType, KineticOper>::value ||
@@ -316,9 +316,10 @@ void build_onebody_1b_1k(std::ostream& os, std::string label,
   // derivatives of spherical multipole integrals are not implemented
   {
     if (std::is_same<_OperType, SphericalMultipoleOper>::value &&
-        deriv_level > 0) return;
-      // throw std::invalid_argument(
-      //     "derivatives of spherical multipole ints are not yet implemented");
+        deriv_level > 0)
+      return;
+    // throw std::invalid_argument(
+    //     "derivatives of spherical multipole ints are not yet implemented");
   }
 
   //
@@ -385,7 +386,7 @@ void build_onebody_1b_1k(std::ostream& os, std::string label,
         // reset descriptors array
         descrs.resize(0);
         // iterate over operators and construct their descriptors
-        for (int l = 0; l <= MULTIPOLE_MAX_ORDER; ++l) {
+        for (int l = 0; l <= LIBINT_MULTIPOLE_MAX_ORDER; ++l) {
           // we iterate over them using the *standard* solid harmonic Gaussian
           // ordering
           int m;
@@ -538,7 +539,7 @@ void try_main(int argc, char* argv[]) {
     taskmgr.add(task_label("default", d));
   }
 #endif
-#ifdef INCLUDE_ONEBODY
+#ifdef LIBINT_INCLUDE_ONEBODY
 
 // overlap, kinetic, elecpot cannot be omitted
 #define BOOST_PP_ONEBODY_TASK_TUPLE                                  \
@@ -553,7 +554,7 @@ void try_main(int argc, char* argv[]) {
 #define BOOST_PP_ONEBODY_TASK_OPER_LIST \
   BOOST_PP_TUPLE_TO_LIST(BOOST_PP_ONEBODY_TASK_OPER_TUPLE)
 
-  for (unsigned int d = 0; d <= INCLUDE_ONEBODY; ++d) {
+  for (unsigned int d = 0; d <= LIBINT_INCLUDE_ONEBODY; ++d) {
 #define BOOST_PP_ONEBODY_MCR1(r, data, elem) \
   taskmgr.add(task_label(BOOST_PP_STRINGIZE(elem), d));
 
@@ -561,32 +562,32 @@ void try_main(int argc, char* argv[]) {
 #undef BOOST_PP_ONEBODY_MCR1
   }
 #endif
-#ifdef INCLUDE_ERI
-  for (unsigned int d = 0; d <= INCLUDE_ERI; ++d) {
+#ifdef LIBINT_INCLUDE_ERI
+  for (unsigned int d = 0; d <= LIBINT_INCLUDE_ERI; ++d) {
     taskmgr.add(task_label("eri", d));
   }
 #endif
-#ifdef INCLUDE_ERI3
-  for (unsigned int d = 0; d <= INCLUDE_ERI3; ++d) {
+#ifdef LIBINT_INCLUDE_ERI3
+  for (unsigned int d = 0; d <= LIBINT_INCLUDE_ERI3; ++d) {
     taskmgr.add(task_label("3eri", d));
   }
 #endif
-#ifdef INCLUDE_ERI2
-  for (unsigned int d = 0; d <= INCLUDE_ERI2; ++d) {
+#ifdef LIBINT_INCLUDE_ERI2
+  for (unsigned int d = 0; d <= LIBINT_INCLUDE_ERI2; ++d) {
     taskmgr.add(task_label("2eri", d));
   }
 #endif
-#ifdef INCLUDE_G12
+#ifdef LIBINT_INCLUDE_G12
   taskmgr.add("r12kg12");
 #if !LIBINT_USE_COMPOSITE_EVALUATORS
   taskmgr.add("r12_0_g12");
   taskmgr.add("r12_2_g12");
 #endif
 #endif
-#ifdef INCLUDE_GENG12
+#ifdef LIBINT_INCLUDE_GENG12
   taskmgr.add("geng12");
 #endif
-#ifdef INCLUDE_G12DKH
+#ifdef LIBINT_INCLUDE_G12DKH
   taskmgr.add("g12dkh");
 #endif
 
@@ -609,75 +610,77 @@ void try_main(int argc, char* argv[]) {
 #endif
   cparams->num_bf("default", 4);
 
-#ifdef INCLUDE_ONEBODY
-  for (unsigned int d = 0; d <= INCLUDE_ONEBODY; ++d) {
-#if defined(ONEBODY_MAX_AM_LIST)
+#ifdef LIBINT_INCLUDE_ONEBODY
+  for (unsigned int d = 0; d <= LIBINT_INCLUDE_ONEBODY; ++d) {
+#if defined(LIBINT_ONEBODY_MAX_AM_LIST)
 #define BOOST_PP_ONEBODY_MCR2(r, data, elem)   \
   cparams->max_am(                             \
       task_label(BOOST_PP_STRINGIZE(elem), d), \
-                 token<unsigned int>(ONEBODY_MAX_AM_LIST, ',', d));
+                 token<unsigned int>(LIBINT_ONEBODY_MAX_AM_LIST, ',', d));
     BOOST_PP_LIST_FOR_EACH(BOOST_PP_ONEBODY_MCR2, _, BOOST_PP_ONEBODY_TASK_LIST)
 #undef BOOST_PP_ONEBODY_MCR2
-#elif defined(ONEBODY_MAX_AM)
-#define BOOST_PP_ONEBODY_MCR3(r, data, elem) \
-  cparams->max_am(task_label(BOOST_PP_STRINGIZE(elem), d), ONEBODY_MAX_AM);
+#elif defined(LIBINT_ONEBODY_MAX_AM)
+#define BOOST_PP_ONEBODY_MCR3(r, data, elem)               \
+  cparams->max_am(task_label(BOOST_PP_STRINGIZE(elem), d), \
+                             LIBINT_ONEBODY_MAX_AM);
     BOOST_PP_LIST_FOR_EACH(BOOST_PP_ONEBODY_MCR3, _, BOOST_PP_ONEBODY_TASK_LIST)
 #undef BOOST_PP_ONEBODY_MCR3
 #endif
-#if defined(ONEBODY_OPT_AM_LIST)
+#if defined(LIBINT_ONEBODY_OPT_AM_LIST)
 #define BOOST_PP_ONEBODY_MCR4(r, data, elem)   \
   cparams->max_am_opt(                         \
       task_label(BOOST_PP_STRINGIZE(elem), d), \
-                 token<unsigned int>(ONEBODY_OPT_AM_LIST, ',', d));
+                 token<unsigned int>(LIBINT_ONEBODY_OPT_AM_LIST, ',', d));
     BOOST_PP_LIST_FOR_EACH(BOOST_PP_ONEBODY_MCR4, _, BOOST_PP_ONEBODY_TASK_LIST)
 #undef BOOST_PP_ONEBODY_MCR4
-#elif defined(ONEBODY_OPT_AM)
-#define BOOST_PP_ONEBODY_MCR5(r, data, elem) \
-  cparams->max_am_opt(task_label(BOOST_PP_STRINGIZE(elem), d), ONEBODY_OPT_AM);
+#elif defined(LIBINT_ONEBODY_OPT_AM)
+#define BOOST_PP_ONEBODY_MCR5(r, data, elem)                   \
+  cparams->max_am_opt(task_label(BOOST_PP_STRINGIZE(elem), d), \
+                                 LIBINT_ONEBODY_OPT_AM);
     BOOST_PP_LIST_FOR_EACH(BOOST_PP_ONEBODY_MCR5, _, BOOST_PP_ONEBODY_TASK_LIST)
 #undef BOOST_PP_ONEBODY_MCR5
 #endif
   }
-  for (unsigned int d = 0; d <= INCLUDE_ONEBODY; ++d) {
+  for (unsigned int d = 0; d <= LIBINT_INCLUDE_ONEBODY; ++d) {
 #define BOOST_PP_ONEBODY_MCR6(r, data, elem) \
   cparams->num_bf(task_label(BOOST_PP_STRINGIZE(elem), d), 2);
     BOOST_PP_LIST_FOR_EACH(BOOST_PP_ONEBODY_MCR6, _, BOOST_PP_ONEBODY_TASK_LIST)
 #undef BOOST_PP_ONEBODY_MCR6
   }
-#endif  // INCLUDE_ONEBODY
+#endif  // LIBINT_INCLUDE_ONEBODY
 
-#ifdef INCLUDE_ERI
-  for (unsigned int d = 0; d <= INCLUDE_ERI; ++d) {
-#if defined(ERI_MAX_AM_LIST)
+#ifdef LIBINT_INCLUDE_ERI
+  for (unsigned int d = 0; d <= LIBINT_INCLUDE_ERI; ++d) {
+#if defined(LIBINT_ERI_MAX_AM_LIST)
     cparams->max_am(task_label("eri", d),
-                    token<unsigned int>(ERI_MAX_AM_LIST, ',', d));
-#elif defined(ERI_MAX_AM)
-    cparams->max_am(task_label("eri", d), ERI_MAX_AM);
+                    token<unsigned int>(LIBINT_ERI_MAX_AM_LIST, ',', d));
+#elif defined(LIBINT_ERI_MAX_AM)
+    cparams->max_am(task_label("eri", d), LIBINT_ERI_MAX_AM);
 #endif
-#if defined(ERI_OPT_AM_LIST)
+#if defined(LIBINT_ERI_OPT_AM_LIST)
     cparams->max_am_opt(task_label("eri", d),
-                        token<unsigned int>(ERI_OPT_AM_LIST, ',', d));
-#elif defined(ERI_OPT_AM)
-    cparams->max_am_opt(task_label("eri", d), ERI_OPT_AM);
+                        token<unsigned int>(LIBINT_ERI_OPT_AM_LIST, ',', d));
+#elif defined(LIBINT_ERI_OPT_AM)
+    cparams->max_am_opt(task_label("eri", d), LIBINT_ERI_OPT_AM);
 #endif
   }
-  for (unsigned int d = 0; d <= INCLUDE_ERI; ++d) {
+  for (unsigned int d = 0; d <= LIBINT_INCLUDE_ERI; ++d) {
     cparams->num_bf(task_label("eri", d), 4);
   }
 #endif
-#ifdef INCLUDE_ERI3
-  for (unsigned int d = 0; d <= INCLUDE_ERI3; ++d) {
-#if defined(ERI3_MAX_AM_LIST)
+#ifdef LIBINT_INCLUDE_ERI3
+  for (unsigned int d = 0; d <= LIBINT_INCLUDE_ERI3; ++d) {
+#if defined(LIBINT_ERI3_MAX_AM_LIST)
     cparams->max_am(task_label("3eri", d),
-                    token<unsigned int>(ERI3_MAX_AM_LIST, ',', d));
-#elif defined(ERI3_MAX_AM)
-    cparams->max_am(task_label("3eri", d), ERI3_MAX_AM);
+                    token<unsigned int>(LIBINT_ERI3_MAX_AM_LIST, ',', d));
+#elif defined(LIBINT_ERI3_MAX_AM)
+    cparams->max_am(task_label("3eri", d), LIBINT_ERI3_MAX_AM);
 #endif
-#if defined(ERI3_OPT_AM_LIST)
+#if defined(LIBINT_ERI3_OPT_AM_LIST)
     cparams->max_am_opt(task_label("3eri", d),
-                        token<unsigned int>(ERI3_OPT_AM_LIST, ',', d));
-#elif defined(ERI3_OPT_AM)
-    cparams->max_am_opt(task_label("3eri", d), ERI3_OPT_AM);
+                        token<unsigned int>(LIBINT_ERI3_OPT_AM_LIST, ',', d));
+#elif defined(LIBINT_ERI3_OPT_AM)
+    cparams->max_am_opt(task_label("3eri", d), LIBINT_ERI3_OPT_AM);
 #endif
 
 #if defined(LIBINT_MAX_AM_LIST)
@@ -690,57 +693,57 @@ void try_main(int argc, char* argv[]) {
     cparams->max_am(task_label("3eri", d), cparams->max_am("default"), 2);
 #endif
   }
-  for (unsigned int d = 0; d <= INCLUDE_ERI3; ++d) {
+  for (unsigned int d = 0; d <= LIBINT_INCLUDE_ERI3; ++d) {
     cparams->num_bf(task_label("3eri", d), 3);
   }
 #endif
-#ifdef INCLUDE_ERI2
-  for (unsigned int d = 0; d <= INCLUDE_ERI2; ++d) {
-#if defined(ERI2_MAX_AM_LIST)
+#ifdef LIBINT_INCLUDE_ERI2
+  for (unsigned int d = 0; d <= LIBINT_INCLUDE_ERI2; ++d) {
+#if defined(LIBINT_ERI2_MAX_AM_LIST)
     cparams->max_am(task_label("2eri", d),
-                    token<unsigned int>(ERI2_MAX_AM_LIST, ',', d));
-#elif defined(ERI2_MAX_AM)
-    cparams->max_am(task_label("2eri", d), ERI2_MAX_AM);
+                    token<unsigned int>(LIBINT_ERI2_MAX_AM_LIST, ',', d));
+#elif defined(LIBINT_ERI2_MAX_AM)
+    cparams->max_am(task_label("2eri", d), LIBINT_ERI2_MAX_AM);
 #endif
-#if defined(ERI2_OPT_AM_LIST)
+#if defined(LIBINT_ERI2_OPT_AM_LIST)
     cparams->max_am_opt(task_label("2eri", d),
-                        token<unsigned int>(ERI2_OPT_AM_LIST, ',', d));
-#elif defined(ERI2_OPT_AM)
-    cparams->max_am_opt(task_label("2eri", d), ERI2_OPT_AM);
+                        token<unsigned int>(LIBINT_ERI2_OPT_AM_LIST, ',', d));
+#elif defined(LIBINT_ERI2_OPT_AM)
+    cparams->max_am_opt(task_label("2eri", d), LIBINT_ERI2_OPT_AM);
 #endif
   }
-  for (unsigned int d = 0; d <= INCLUDE_ERI2; ++d) {
+  for (unsigned int d = 0; d <= LIBINT_INCLUDE_ERI2; ++d) {
     cparams->num_bf(task_label("2eri", d), 2);
   }
 #endif
-#ifdef INCLUDE_G12
-#ifndef G12_MAX_AM
-#define LIBINT_MAX_AM G12_MAX_AM
+#ifdef LIBINT_INCLUDE_G12
+#ifndef LIBINT_G12_MAX_AM
+#define LIBINT_MAX_AM LIBINT_G12_MAX_AM
 #endif
-#ifndef G12_OPT_AM
-#define LIBINT_OPT_AM G12_OPT_AM
+#ifndef LIBINT_G12_OPT_AM
+#define LIBINT_OPT_AM LIBINT_G12_OPT_AM
 #endif
-  cparams->max_am("r12kg12", G12_MAX_AM);
-  cparams->max_am_opt("r12kg12", G12_OPT_AM);
+  cparams->max_am("r12kg12", LIBINT_G12_MAX_AM);
+  cparams->max_am_opt("r12kg12", LIBINT_G12_OPT_AM);
   cparams->num_bf("r12kg12", 4);
 #if !LIBINT_USE_COMPOSITE_EVALUATORS
-  cparams->max_am("r12_0_g12", G12_MAX_AM);
-  cparams->max_am_opt("r12_0_g12", G12_OPT_AM);
+  cparams->max_am("r12_0_g12", LIBINT_G12_MAX_AM);
+  cparams->max_am_opt("r12_0_g12", LIBINT_G12_OPT_AM);
   cparams->num_bf("r12_0_g12", 4);
-  cparams->max_am("r12_2_g12", G12_MAX_AM);
-  cparams->max_am_opt("r12_2_g12", G12_OPT_AM);
+  cparams->max_am("r12_2_g12", LIBINT_G12_MAX_AM);
+  cparams->max_am_opt("r12_2_g12", LIBINT_G12_OPT_AM);
   cparams->num_bf("r12_2_g12", 4);
 #endif
 #endif
-#ifdef INCLUDE_G12DKH
-#ifndef G12DKH_MAX_AM
-#define LIBINT_MAX_AM G12DKH_MAX_AM
+#ifdef LIBINT_INCLUDE_G12DKH
+#ifndef LIBINT_G12DKH_MAX_AM
+#define LIBINT_MAX_AM LIBINT_G12DKH_MAX_AM
 #endif
-#ifndef G12DKH_OPT_AM
-#define LIBINT_OPT_AM G12DKH_OPT_AM
+#ifndef LIBINT_G12DKH_OPT_AM
+#define LIBINT_OPT_AM LIBINT_G12DKH_OPT_AM
 #endif
-  cparams->max_am("g12dkh", G12DKH_MAX_AM);
-  cparams->max_am_opt("g12dkh", G12DKH_OPT_AM);
+  cparams->max_am("g12dkh", LIBINT_G12DKH_MAX_AM);
+  cparams->max_am_opt("g12dkh", LIBINT_G12DKH_OPT_AM);
 #endif
 #if LIBINT_ENABLE_UNROLLING
   cparams->unroll_threshold(LIBINT_ENABLE_UNROLLING);
@@ -843,17 +846,17 @@ void try_main(int argc, char* argv[]) {
 #else
   iface->to_params(iface->macro_define("MAX_AM", LIBINT_MAX_AM));
   int max_deriv = 0;
-#ifdef INCLUDE_ONEBODY
-  max_deriv = std::max(INCLUDE_ONEBODY, max_deriv);
+#ifdef LIBINT_INCLUDE_ONEBODY
+  max_deriv = std::max(LIBINT_INCLUDE_ONEBODY, max_deriv);
 #endif
-#ifdef INCLUDE_ERI
-  max_deriv = std::max(INCLUDE_ERI, max_deriv);
+#ifdef LIBINT_INCLUDE_ERI
+  max_deriv = std::max(LIBINT_INCLUDE_ERI, max_deriv);
 #endif
-#ifdef INCLUDE_ERI3
-  max_deriv = std::max(INCLUDE_ERI3, max_deriv);
+#ifdef LIBINT_INCLUDE_ERI3
+  max_deriv = std::max(LIBINT_INCLUDE_ERI3, max_deriv);
 #endif
-#ifdef INCLUDE_ERI2
-  max_deriv = std::max(INCLUDE_ERI2, max_deriv);
+#ifdef LIBINT_INCLUDE_ERI2
+  max_deriv = std::max(LIBINT_INCLUDE_ERI2, max_deriv);
 #endif
   for (int d = 0; d <= max_deriv; ++d) {
     std::ostringstream oss;
@@ -864,8 +867,8 @@ void try_main(int argc, char* argv[]) {
 #endif
   cparams->print(os);
 
-#ifdef INCLUDE_ONEBODY
-  for (unsigned int d = 0; d <= INCLUDE_ONEBODY; ++d) {
+#ifdef LIBINT_INCLUDE_ONEBODY
+  for (unsigned int d = 0; d <= LIBINT_INCLUDE_ONEBODY; ++d) {
 #define BOOST_PP_ONEBODY_MCR7(r, data, i, elem)                              \
   build_onebody_1b_1k<BOOST_PP_LIST_AT(BOOST_PP_ONEBODY_TASK_OPER_LIST, i)>( \
       os, BOOST_PP_STRINGIZE(elem), cparams, iface, d);
@@ -874,39 +877,39 @@ void try_main(int argc, char* argv[]) {
 #undef BOOST_PP_ONEBODY_MCR7
   }
 #endif
-#ifdef INCLUDE_ERI
+#ifdef LIBINT_INCLUDE_ERI
 #if !USE_GENERIC_ERI_BUILD
   build_TwoPRep_2b_2k(os, cparams, iface);
 #else
-  for (unsigned int d = 0; d <= INCLUDE_ERI; ++d) {
+  for (unsigned int d = 0; d <= LIBINT_INCLUDE_ERI; ++d) {
     build_TwoPRep_2b_2k(os, cparams, iface, d);
   }
 #endif
 #endif
-#ifdef INCLUDE_ERI3
-  for (unsigned int d = 0; d <= INCLUDE_ERI3; ++d) {
+#ifdef LIBINT_INCLUDE_ERI3
+  for (unsigned int d = 0; d <= LIBINT_INCLUDE_ERI3; ++d) {
     build_TwoPRep_1b_2k(os, cparams, iface, d);
   }
-#if ERI3_PURE_SH
+#if LIBINT_ERI3_PURE_SH
   iface->to_params(iface->macro_define("ERI3_PURE_SH", 1));
 #endif
 #endif
-#ifdef INCLUDE_ERI2
-  for (unsigned int d = 0; d <= INCLUDE_ERI2; ++d) {
+#ifdef LIBINT_INCLUDE_ERI2
+  for (unsigned int d = 0; d <= LIBINT_INCLUDE_ERI2; ++d) {
     build_TwoPRep_1b_1k(os, cparams, iface, d);
   }
-#if ERI2_PURE_SH
+#if LIBINT_ERI2_PURE_SH
   iface->to_params(iface->macro_define("ERI2_PURE_SH", 1));
 #endif
 #endif
-#ifdef INCLUDE_G12
+#ifdef LIBINT_INCLUDE_G12
 #if LIBINT_USE_COMPOSITE_EVALUATORS
   build_R12kG12_2b_2k(os, cparams, iface);
 #else
   build_R12kG12_2b_2k_separate(os, cparams, iface);
 #endif
 #endif
-#ifdef INCLUDE_G12DKH
+#ifdef LIBINT_INCLUDE_G12DKH
   build_G12DKH_2b_2k(os, cparams, iface);
 #endif
 
@@ -946,41 +949,45 @@ void print_header(std::ostream& os) {
 }
 
 void print_config(std::ostream& os) {
-#ifdef INCLUDE_ONEBODY
+#ifdef LIBINT_INCLUDE_ONEBODY
   os << "Will support one-body integrals";
-  if (INCLUDE_ONEBODY > 0) os << "(deriv order = " << INCLUDE_ONEBODY << ")";
+  if (LIBINT_INCLUDE_ONEBODY > 0)
+    os << "(deriv order = " << LIBINT_INCLUDE_ONEBODY << ")";
   os << endl;
 #endif
-#ifdef INCLUDE_ERI
+#ifdef LIBINT_INCLUDE_ERI
   os << "Will support ERI";
-  if (INCLUDE_ERI > 0) os << "(deriv order = " << INCLUDE_ERI << ")";
+  if (LIBINT_INCLUDE_ERI > 0)
+    os << "(deriv order = " << LIBINT_INCLUDE_ERI << ")";
   os << endl;
 #endif
-#ifdef INCLUDE_ERI3
+#ifdef LIBINT_INCLUDE_ERI3
   os << "Will support 3-center ERI";
-  if (INCLUDE_ERI3 > 0) os << "(deriv order = " << INCLUDE_ERI3 << ")";
+  if (LIBINT_INCLUDE_ERI3 > 0)
+    os << "(deriv order = " << LIBINT_INCLUDE_ERI3 << ")";
   os << endl;
 #endif
-#ifdef INCLUDE_ERI2
+#ifdef LIBINT_INCLUDE_ERI2
   os << "Will support 2-center ERI";
-  if (INCLUDE_ERI2 > 0) os << "(deriv order = " << INCLUDE_ERI2 << ")";
+  if (LIBINT_INCLUDE_ERI2 > 0)
+    os << "(deriv order = " << LIBINT_INCLUDE_ERI2 << ")";
   os << endl;
 #endif
-#ifdef INCLUDE_G12
+#ifdef LIBINT_INCLUDE_G12
   os << "Will support G12 (commutators = ";
-#if SUPPORT_T1G12
+#if LIBINT_SUPPORT_T1G12
   os << "yes";
 #else
   os << "false";
 #endif
   os << ")" << endl;
 #endif
-#ifdef INCLUDE_G12DKH
+#ifdef LIBINT_INCLUDE_G12DKH
   os << "Will support G12DKH" << endl;
 #endif
 }
 
-#ifdef INCLUDE_ERI
+#ifdef LIBINT_INCLUDE_ERI
 void build_TwoPRep_2b_2k(std::ostream& os,
                          const std::shared_ptr<CompilationParameters>& cparams,
                          std::shared_ptr<Libint2Iface>& iface,
@@ -1168,9 +1175,9 @@ void build_TwoPRep_2b_2k(std::ostream& os,
   }        // end of a loop
 }
 
-#endif  // INCLUDE_ERI
+#endif  // LIBINT_INCLUDE_ERI
 
-#ifdef INCLUDE_ERI3
+#ifdef LIBINT_INCLUDE_ERI3
 
 void build_TwoPRep_1b_2k(std::ostream& os,
                          const std::shared_ptr<CompilationParameters>& cparams,
@@ -1266,7 +1273,7 @@ void build_TwoPRep_1b_2k(std::ostream& os,
           CGShell b = (dummy_center == 1) ? CGShell::unit() : CGShell(lbra);
           CGShell c(lc);
           CGShell d(ld);
-#if ERI3_PURE_SH
+#if LIBINT_ERI3_PURE_SH
           if (dummy_center == 1 && deriv_level == 0) a.pure_sh(true);
           if (dummy_center == 0 && deriv_level == 0) b.pure_sh(true);
 #endif
@@ -1307,7 +1314,7 @@ void build_TwoPRep_1b_2k(std::ostream& os,
           CGShell b = (dummy_center == 1) ? CGShell::unit() : CGShell(lbra);
           CGShell c(lc);
           CGShell d(ld);
-#if ERI3_PURE_SH
+#if LIBINT_ERI3_PURE_SH
           if (dummy_center == 1 && deriv_level == 0) a.pure_sh(true);
           if (dummy_center == 0 && deriv_level == 0) b.pure_sh(true);
 #endif
@@ -1374,9 +1381,9 @@ void build_TwoPRep_1b_2k(std::ostream& os,
     }    // end of c loop
   }      // end of bra loop
 }
-#endif  // INCLUDE_ERI3
+#endif  // LIBINT_INCLUDE_ERI3
 
-#ifdef INCLUDE_ERI2
+#ifdef LIBINT_INCLUDE_ERI2
 
 void build_TwoPRep_1b_1k(std::ostream& os,
                          const std::shared_ptr<CompilationParameters>& cparams,
@@ -1460,7 +1467,7 @@ void build_TwoPRep_1b_1k(std::ostream& os,
         CGShell b = (dummy_center1 == 1) ? CGShell::unit() : CGShell(lbra);
         CGShell c = (dummy_center2 == 2) ? CGShell::unit() : CGShell(lket);
         CGShell d = (dummy_center2 == 3) ? CGShell::unit() : CGShell(lket);
-#if ERI2_PURE_SH
+#if LIBINT_ERI2_PURE_SH
         if (dummy_center1 == 1 && deriv_level == 0) a.pure_sh(true);
         if (dummy_center1 == 0 && deriv_level == 0) b.pure_sh(true);
         if (dummy_center2 == 3 && deriv_level == 0) c.pure_sh(true);
@@ -1503,7 +1510,7 @@ void build_TwoPRep_1b_1k(std::ostream& os,
         CGShell b = (dummy_center1 == 1) ? CGShell::unit() : CGShell(lbra);
         CGShell c = (dummy_center2 == 2) ? CGShell::unit() : CGShell(lket);
         CGShell d = (dummy_center2 == 3) ? CGShell::unit() : CGShell(lket);
-#if ERI2_PURE_SH
+#if LIBINT_ERI2_PURE_SH
         if (dummy_center1 == 1 && deriv_level == 0) a.pure_sh(true);
         if (dummy_center1 == 0 && deriv_level == 0) b.pure_sh(true);
         if (dummy_center2 == 3 && deriv_level == 0) c.pure_sh(true);
@@ -1570,9 +1577,9 @@ void build_TwoPRep_1b_1k(std::ostream& os,
     }  // end of ket loop
   }    // end of bra loop
 }
-#endif  // INCLUDE_ERI2
+#endif  // LIBINT_INCLUDE_ERI2
 
-#ifdef INCLUDE_G12
+#ifdef LIBINT_INCLUDE_G12
 void build_R12kG12_2b_2k(std::ostream& os,
                          const std::shared_ptr<CompilationParameters>& cparams,
                          std::shared_ptr<Libint2Iface>& iface) {
@@ -1587,7 +1594,7 @@ void build_R12kG12_2b_2k(std::ostream& os,
   LibraryTaskManager& taskmgr = LibraryTaskManager::Instance();
   taskmgr.current(task);
   iface->to_params(iface->macro_define("MAX_AM_R12kG12", lmax));
-#if SUPPORT_T1G12
+#if LIBINT_SUPPORT_T1G12
   iface->to_params(iface->macro_define("SUPPORT_T1G12", 1));
 #else
   iface->to_params(iface->macro_define("SUPPORT_T1G12", 0));
@@ -1667,7 +1674,7 @@ void build_R12kG12_2b_2k(std::ostream& os,
             dg_xxxx->append_target(abcd_ptr);
           }
 
-#if SUPPORT_T1G12
+#if LIBINT_SUPPORT_T1G12
           // [T_1,G12]
           if (true) {
             typedef TiG12_11_11_sq int_type;
@@ -1774,14 +1781,14 @@ void build_R12kG12_2b_2k(std::ostream& os,
   }        // end of a loop
 }
 
-#endif  // INCLUDE_G12
+#endif  // LIBINT_INCLUDE_G12
 
-#ifdef INCLUDE_G12
+#ifdef LIBINT_INCLUDE_G12
 void build_R12kG12_2b_2k_separate(
     std::ostream& os, const std::shared_ptr<CompilationParameters>& cparams,
     std::shared_ptr<Libint2Iface>& iface) {
   // do not support this if the commutator integrals are needed
-#if SUPPORT_T1G12
+#if LIBINT_SUPPORT_T1G12
   assert(false);
 #endif
 
@@ -1920,9 +1927,9 @@ void build_R12kG12_2b_2k_separate(
   }          // end of task loop
 }
 
-#endif  // INCLUDE_G12
+#endif  // LIBINT_INCLUDE_G12
 
-#ifdef INCLUDE_G12DKH
+#ifdef LIBINT_INCLUDE_G12DKH
 void build_G12DKH_2b_2k(std::ostream& os,
                         const std::shared_ptr<CompilationParameters>& cparams,
                         std::shared_ptr<Libint2Iface>& iface) {
@@ -2110,46 +2117,50 @@ void build_G12DKH_2b_2k(std::ostream& os,
   }        // end of a loop
 }
 
-#endif  // INCLUDE_G12DKH
+#endif  // LIBINT_INCLUDE_G12DKH
 
 void config_to_api(const std::shared_ptr<CompilationParameters>& cparams,
                    std::shared_ptr<Libint2Iface>& iface) {
   int max_deriv_order = 0;
-#ifdef INCLUDE_ONEBODY
+#ifdef LIBINT_INCLUDE_ONEBODY
   iface->to_params(iface->macro_define("SUPPORT_ONEBODY", 1));
-  iface->to_params(iface->macro_define("DERIV_ONEBODY_ORDER", INCLUDE_ONEBODY));
-#ifdef DISABLE_ONEBODY_PROPERTY_DERIVS
+  iface->to_params(
+      iface->macro_define("DERIV_ONEBODY_ORDER", LIBINT_INCLUDE_ONEBODY));
+#ifdef LIBINT_DISABLE_ONEBODY_PROPERTY_DERIVS
   iface->to_params(iface->macro_define("DERIV_ONEBODY_PROPERTY_ORDER", 0));
 #else
-  iface->to_params(
-      iface->macro_define("DERIV_ONEBODY_PROPERTY_ORDER", INCLUDE_ONEBODY));
+  iface->to_params(iface->macro_define("DERIV_ONEBODY_PROPERTY_ORDER",
+                                       LIBINT_INCLUDE_ONEBODY));
 #endif
-  max_deriv_order = std::max(max_deriv_order, INCLUDE_ONEBODY);
+  max_deriv_order = std::max(max_deriv_order, LIBINT_INCLUDE_ONEBODY);
 #endif
-#ifdef INCLUDE_ERI
+#ifdef LIBINT_INCLUDE_ERI
   iface->to_params(iface->macro_define("SUPPORT_ERI", 1));
-  iface->to_params(iface->macro_define("DERIV_ERI_ORDER", INCLUDE_ERI));
-  max_deriv_order = std::max(max_deriv_order, INCLUDE_ERI);
+  iface->to_params(iface->macro_define("DERIV_ERI_ORDER", LIBINT_INCLUDE_ERI));
+  max_deriv_order = std::max(max_deriv_order, LIBINT_INCLUDE_ERI);
 #endif
-#ifdef INCLUDE_ERI3
+#ifdef LIBINT_INCLUDE_ERI3
   iface->to_params(iface->macro_define("SUPPORT_ERI3", 1));
-  iface->to_params(iface->macro_define("DERIV_ERI3_ORDER", INCLUDE_ERI3));
-  max_deriv_order = std::max(max_deriv_order, INCLUDE_ERI3);
+  iface->to_params(
+      iface->macro_define("DERIV_ERI3_ORDER", LIBINT_INCLUDE_ERI3));
+  max_deriv_order = std::max(max_deriv_order, LIBINT_INCLUDE_ERI3);
 #endif
-#ifdef INCLUDE_ERI2
+#ifdef LIBINT_INCLUDE_ERI2
   iface->to_params(iface->macro_define("SUPPORT_ERI2", 1));
-  iface->to_params(iface->macro_define("DERIV_ERI2_ORDER", INCLUDE_ERI2));
-  max_deriv_order = std::max(max_deriv_order, INCLUDE_ERI2);
+  iface->to_params(
+      iface->macro_define("DERIV_ERI2_ORDER", LIBINT_INCLUDE_ERI2));
+  max_deriv_order = std::max(max_deriv_order, LIBINT_INCLUDE_ERI2);
 #endif
-#ifdef INCLUDE_G12
+#ifdef LIBINT_INCLUDE_G12
   iface->to_params(iface->macro_define("SUPPORT_G12", 1));
-  iface->to_params(iface->macro_define("DERIV_G12_ORDER", INCLUDE_G12));
-  max_deriv_order = std::max(max_deriv_order, INCLUDE_G12);
+  iface->to_params(iface->macro_define("DERIV_G12_ORDER", LIBINT_INCLUDE_G12));
+  max_deriv_order = std::max(max_deriv_order, LIBINT_INCLUDE_G12);
 #endif
-#ifdef INCLUDE_G12DKH
+#ifdef LIBINT_INCLUDE_G12DKH
   iface->to_params(iface->macro_define("SUPPORT_G12DKH", 1));
-  iface->to_params(iface->macro_define("DERIV_G12DKH_ORDER", INCLUDE_G12DKH));
-  max_deriv_order = std::max(max_deriv_order, INCLUDE_G12DKH);
+  iface->to_params(
+      iface->macro_define("DERIV_G12DKH_ORDER", LIBINT_INCLUDE_G12DKH));
+  max_deriv_order = std::max(max_deriv_order, LIBINT_INCLUDE_G12DKH);
 #endif
   iface->to_params(iface->macro_define("MAX_DERIV_ORDER", max_deriv_order));
 

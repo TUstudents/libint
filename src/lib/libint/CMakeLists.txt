@@ -41,7 +41,7 @@ configure_file(
 #   CMAKE_INSTALL_PREFIX
 # * gets re-re-positioned (end of this file) for case of continuous generator +
 #   library build (through EP) with outer CMAKE_INSTALL_PREFIX
-set(DATADIR_ABSOLUTE ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/libint/${LIBINT_VERSION})
+set(LIBINT_DATADIR_ABSOLUTE ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/libint/${LIBINT_VERSION})
 configure_file(
   "${PROJECT_SOURCE_DIR}/include/libint2/basis.h.in"  # TODO basis.h.cmake.in after libtool retires
   "include/libint2/basis.h"
@@ -60,7 +60,7 @@ add_custom_command(
           -P ${CMAKE_CURRENT_SOURCE_DIR}/populate.cmake
   DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/populate.cmake"
-    "${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt.export"
+    "${PROJECT_SOURCE_DIR}/export/CMakeLists.txt.export"
     "${PROJECT_SOURCE_DIR}/cmake/libint2-config.cmake.in"
     "${PROJECT_BINARY_DIR}/generated/libint2_params.h"
     "${PROJECT_BINARY_DIR}/generated/HRRPart0bra0ket0pp.h"
@@ -73,11 +73,11 @@ add_custom_target(libint-library-populate DEPENDS ${EXPORT_STAGE_DIR}/CMakeLists
 
 # <<<  Export The Library Source  >>>
 
-set(EXPORT_TARBALL "${EXPORT_STAGE_DIR}.${EXPORT_COMPRESSOR_EXT}")
+set(EXPORT_TARBALL "${EXPORT_STAGE_DIR}.${LIBINT_EXPORT_COMPRESSOR_EXT}")
 add_custom_command(
   OUTPUT
     "${EXPORT_TARBALL}"
-  COMMAND ${CMAKE_COMMAND} -E tar ${EXPORT_COMPRESSOR_CMD} "${EXPORT_TARBALL}" "${EXPORT_STAGE_DIR}"
+  COMMAND ${CMAKE_COMMAND} -E tar ${LIBINT_EXPORT_COMPRESSOR_CMD} "${EXPORT_TARBALL}" "${EXPORT_STAGE_DIR}"
   DEPENDS
     libint-library-generate
     libint-library-populate
@@ -85,7 +85,7 @@ add_custom_command(
   WORKING_DIRECTORY "${EXPORT_STAGE_DIR}/.."
   COMMENT "Exporting tarball of Libint2 library source: ${EXPORT_TARBALL}"
   )
-if (LIBINT_BUILD_LIBRARY_AS_SUBPROJECT)
+if (LIBINT2_BUILD_LIBRARY_AS_SUBPROJECT)
     # rerun cmake if building as subproject to unpack and consume the library as subproject
     add_custom_target(libint-library-export DEPENDS "${EXPORT_TARBALL}"
       COMMAND ${CMAKE_COMMAND} -S "${CMAKE_SOURCE_DIR}" -B "${CMAKE_BINARY_DIR}")
@@ -105,7 +105,7 @@ else()
     message(FATAL_ERROR "No C language support; invoke CMake with -D CMAKE_C_COMPILER=/path/to/C/compiler to resolve")
 endif()
 
-if (LIBINT_BUILD_LIBRARY_AS_SUBPROJECT)
+if (LIBINT2_BUILD_LIBRARY_AS_SUBPROJECT)
     include(FetchContent)
 
     if (EXISTS "${EXPORT_TARBALL}")
@@ -116,7 +116,7 @@ if (LIBINT_BUILD_LIBRARY_AS_SUBPROJECT)
           )
         FetchContent_MakeAvailable(libint-library)
     else()
-        message(WARNING "LIBINT_BUILD_LIBRARY_AS_SUBPROJECT=ON but library has not been exported yet; build target 'libint-library-export' first, this will make library build/test targets ('check', 'install') available. Don't run 'check' with CTEST_PARALLEL_LEVEL as this will build the library multiple times.")
+        message(WARNING "LIBINT2_BUILD_LIBRARY_AS_SUBPROJECT=ON but library has not been exported yet; build target 'libint-library-export' first, this will make library build/test targets ('check', 'install') available. Don't run 'check' with CTEST_PARALLEL_LEVEL as this will build the library multiple times.")
     endif()
 
 else()
@@ -218,16 +218,18 @@ else()
     endif()
 
     # install library from ExternalProject staging area into CMAKE_INSTALL_PREFIX
-    install(
-      DIRECTORY "${LIBRARY_INSTALL_STAGE_DIR}/"
-      DESTINATION "."
-      USE_SOURCE_PERMISSIONS
-      )
+    foreach(_dir include lib share)
+      install(
+        DIRECTORY "${LIBRARY_INSTALL_STAGE_DIR}/${_dir}/"
+        DESTINATION "${_dir}"
+        USE_SOURCE_PERMISSIONS
+        )
+    endforeach()
 
-    # generate basis.h at install time so DATADIR_ABSOLUTE reflects any --prefix override
+    # generate basis.h at install time so LIBINT_DATADIR_ABSOLUTE reflects any --prefix override
     install(CODE "
       set(LIBINT_VERSION \"${LIBINT_VERSION}\")
-      set(DATADIR_ABSOLUTE \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/libint/${LIBINT_VERSION}\")
+      set(LIBINT_DATADIR_ABSOLUTE \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/libint/${LIBINT_VERSION}\")
       configure_file(
         \"${PROJECT_SOURCE_DIR}/include/libint2/basis.h.in\"
         \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}/libint2/basis.h\"

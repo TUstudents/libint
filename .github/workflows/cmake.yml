@@ -55,20 +55,20 @@ jobs:
         -D CMAKE_PREFIX_PATH='/opt/homebrew/opt/eigen@3'
         -D CMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -D BUILD_SHARED_LIBS=${{ matrix.build_shared_libs }}
-        -D LIBINT_BUILD_LIBRARY_AS_SUBPROJECT=${{ matrix.subproject }}
+        -D LIBINT2_BUILD_LIBRARY_AS_SUBPROJECT=${{ matrix.subproject }}
         -D CMAKE_INSTALL_PREFIX=${{github.workspace}}/build/library
-        -D WITH_MAX_AM=2;2
-        -D WITH_ERI_MAX_AM=2;2
-        -D WITH_ERI3_MAX_AM=3;2
-        -D ENABLE_ERI=1
-        -D ENABLE_ERI3=1
-        -D ENABLE_ONEBODY=1
-        -D DISABLE_ONEBODY_PROPERTY_DERIVS=ON
-        -D MULTIPOLE_MAX_ORDER=2
+        -D LIBINT2_MAX_AM=2;2
+        -D LIBINT2_ERI_MAX_AM=2;2
+        -D LIBINT2_ERI3_MAX_AM=3;2
+        -D LIBINT2_ENABLE_ERI=1
+        -D LIBINT2_ENABLE_ERI3=1
+        -D LIBINT2_ENABLE_ONEBODY=1
+        -D LIBINT2_DISABLE_ONEBODY_PROPERTY_DERIVS=ON
+        -D LIBINT2_MULTIPOLE_MAX_ORDER=2
         -D LIBINT2_REQUIRE_CXX_API_COMPILED=ON
         -D LIBINT2_ENABLE_FORTRAN=${{ matrix.do_fortran }}
         -D LIBINT2_ENABLE_PYTHON=ON
-        -D EXPORT_COMPRESSOR=${{ matrix.compressor }}
+        -D LIBINT2_EXPORT_COMPRESSOR=${{ matrix.compressor }}
 
     outputs:
       should_skip: ${{ steps.skip_check.outputs.should_skip }}
@@ -190,9 +190,9 @@ jobs:
         add_executable(hf++ hartree-fock++.cc)
         target_link_libraries(hf++ Libint2::cxx Threads::Threads)
         EOF
-        cp ${{github.workspace}}/tests/hartree-fock/hartree-fock++.cc .
-        cp ${{github.workspace}}/tests/hartree-fock/h2o_rotated.xyz .
-        cp ${{github.workspace}}/tests/hartree-fock/hartree-fock++-validate.py .
+        cp ${{github.workspace}}/export/tests/hartree-fock/hartree-fock++.cc .
+        cp ${{github.workspace}}/export/tests/hartree-fock/h2o_rotated.xyz .
+        cp ${{github.workspace}}/export/tests/hartree-fock/hartree-fock++-validate.py .
         cp ${{github.workspace}}/build/compiler/build/libint-*/features .
         cmake -S . -B build -G Ninja \
           -D CMAKE_PREFIX_PATH="${{github.workspace}}/build/library;/opt/homebrew/opt/eigen@3"
@@ -342,19 +342,21 @@ jobs:
         cat > CMakeLists.txt <<EOF
         cmake_minimum_required(VERSION 3.8)
         project(hf++)
-        find_package(Libint2 2.12.0 REQUIRED)
+        find_package(Libint2 REQUIRED)
+        get_target_property(_l2_ver Libint2::int2 Libint2_VERSION)
         get_target_property(_l2_maxam Libint2::int2 Libint2_MAX_AM_ERI)
-        message("Libint2_MAX_AM_ERI \${_l2_maxam}")
+        get_target_property(_l2_config Libint2::int2 Libint2_CONFIGURATION)
+        message("Libint2_MAX_AM_ERI \${_l2_maxam} Libint2_VERSION \${_l2_ver} Libint2_CONFIGURATION \${_l2_config}")
         find_package(Threads)  # clang does not autolink threads even though we are using std::thread
         add_executable(hf++ EXCLUDE_FROM_ALL "../libint/tests/hartree-fock/hartree-fock++.cc")
         target_link_libraries(hf++ Libint2::cxx Threads::Threads)
         EOF
         cmake -S . -B from_build_tree -DCMAKE_PREFIX_PATH="${{github.workspace}}/libint/build" ${{ matrix.cfg.testargs }}
         cmake --build from_build_tree --target hf++
-        from_build_tree/hf++ ../libint/tests/hartree-fock/h2o_rotated.xyz | python ../libint/tests/hartree-fock/hartree-fock++-validate.py ../libint/MakeVars.features
+        from_build_tree/hf++ ../libint/tests/hartree-fock/h2o_rotated.xyz | python ../libint/tests/hartree-fock/hartree-fock++-validate.py ../libint/features
         cmake -S . -B from_install_tree -DCMAKE_PREFIX_PATH="${{github.workspace}}/installed" ${{ matrix.cfg.testargs }}
         cmake --build from_install_tree --target hf++
-        from_install_tree/hf++ ../libint/tests/hartree-fock/h2o_rotated.xyz | python ../libint/tests/hartree-fock/hartree-fock++-validate.py ../libint/MakeVars.features
+        from_install_tree/hf++ ../libint/tests/hartree-fock/h2o_rotated.xyz | python ../libint/tests/hartree-fock/hartree-fock++-validate.py ../libint/features
 
     - name: Build & Test Python bindings (again, independently)
       shell: bash -l {0}

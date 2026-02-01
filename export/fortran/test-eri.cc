@@ -14,7 +14,7 @@
 extern "C" /* prevent C++ name mangling */
 #endif
 
-#ifdef INCLUDE_ERI
+#ifdef LIBINT_INCLUDE_ERI
     /// compute_eri from Fortran
     void
     compute_eri_f(int &contrdepth, int &deriv_order, int &am1, double *c1,
@@ -395,10 +395,10 @@ void compute_eri_c(int &contrdepth, int &deriv_order, int &am1, double *c1,
 #endif
 
   if (deriv_order == 0) libint2_build_eri[am1][am2][am3][am4](erieval);
-#if INCLUDE_ERI >= 1
+#if LIBINT_INCLUDE_ERI >= 1
   if (deriv_order == 1) libint2_build_eri1[am1][am2][am3][am4](erieval);
 #endif
-#if INCLUDE_ERI >= 2
+#if LIBINT_INCLUDE_ERI >= 2
   if (deriv_order == 2) libint2_build_eri2[am1][am2][am3][am4](erieval);
 #endif
 }
@@ -424,13 +424,13 @@ bool test_eri_c_f(int &contrdepth, int &am1, double *c1, double *alpha1,
     libint2_init_eri(erieval_c, max_am, 0);
     libint2_init_eri(erieval_f, max_am, 0);
   }
-#if INCLUDE_ERI >= 1
+#if LIBINT_INCLUDE_ERI >= 1
   if (deriv_order == 1) {
     libint2_init_eri1(erieval_c, max_am, 0);
     libint2_init_eri1(erieval_f, max_am, 0);
   }
 #endif
-#if INCLUDE_ERI >= 2
+#if LIBINT_INCLUDE_ERI >= 2
   if (deriv_order == 2) {
     libint2_init_eri2(erieval_c, max_am, 0);
     libint2_init_eri2(erieval_f, max_am, 0);
@@ -522,13 +522,13 @@ bool test_eri_c_f(int &contrdepth, int &am1, double *c1, double *alpha1,
     libint2_cleanup_eri(erieval_c);
     libint2_cleanup_eri(erieval_f);
   }
-#if INCLUDE_ERI >= 1
+#if LIBINT_INCLUDE_ERI >= 1
   if (deriv_order == 1) {
     libint2_cleanup_eri1(erieval_c);
     libint2_cleanup_eri1(erieval_f);
   }
 #endif
-#if INCLUDE_ERI >= 2
+#if LIBINT_INCLUDE_ERI >= 2
   if (deriv_order == 2) {
     libint2_cleanup_eri2(erieval_c);
     libint2_cleanup_eri2(erieval_f);
@@ -540,7 +540,7 @@ bool test_eri_c_f(int &contrdepth, int &am1, double *c1, double *alpha1,
 
   return success;
 }
-#endif  // INCLUDE_ERI
+#endif  // LIBINT_INCLUDE_ERI
 
 #if LIBINT2_SUPPORT_ERI
 
@@ -576,26 +576,26 @@ TEST_CASE("Fortran ERI", "[eri]") {
   double c3[] = {rsqset.coef[2][0][0], rsqset.coef[2][0][1]};
   double c4[] = {rsqset.coef[3][0][0], rsqset.coef[3][0][1]};
 
-#ifdef INCLUDE_ERI
+#ifdef LIBINT_INCLUDE_ERI
   int deriv_order = 0;
   REQUIRE(test_eri_c_f(contrdepth, am1, c1, alpha1, A, am2, c2, alpha2, B, am3,
                        c3, alpha3, C, am4, c4, alpha4, D, deriv_order,
                        threshold));
 
-#if INCLUDE_ERI >= 1
+#if LIBINT_INCLUDE_ERI >= 1
   deriv_order = 1;
   REQUIRE(test_eri_c_f(contrdepth, am1, c1, alpha1, A, am2, c2, alpha2, B, am3,
                        c3, alpha3, C, am4, c4, alpha4, D, deriv_order,
                        threshold));
 #endif
 
-#if INCLUDE_ERI >= 2
+#if LIBINT_INCLUDE_ERI >= 2
   deriv_order = 2;
   REQUIRE(test_eri_c_f(contrdepth, am1, c1, alpha1, A, am2, c2, alpha2, B, am3,
                        c3, alpha3, C, am4, c4, alpha4, D, deriv_order,
                        threshold));
 #endif
-#endif  // INCLUDE_ERI
+#endif  // LIBINT_INCLUDE_ERI
 }
 
 #endif  // LIBINT2_SUPPORT_ERI

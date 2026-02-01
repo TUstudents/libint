@@ -23,7 +23,7 @@ file(
 
 file(
   INSTALL
-    "${PROJECT_SOURCE_DIR}/tests/"
+    "${PROJECT_SOURCE_DIR}/export/tests/"
   DESTINATION "${EXPORT_STAGE_DIR}/tests"
   FILES_MATCHING
     PATTERN "*.c"
@@ -64,7 +64,7 @@ file(
 
 file(
   INSTALL
-    "${PROJECT_SOURCE_DIR}/lib/basis/"
+    "${PROJECT_SOURCE_DIR}/export/lib/basis/"
   DESTINATION "${EXPORT_STAGE_DIR}/lib/basis"
   FILES_MATCHING
     PATTERN "*.g94"
@@ -76,17 +76,17 @@ file(
 #   the symlinked files into real files, which is what libtool effectively did.
 file(
   COPY_FILE
-    "${PROJECT_SOURCE_DIR}/lib/basis/6-31gs.g94"
+    "${PROJECT_SOURCE_DIR}/export/lib/basis/6-31gs.g94"
     "${EXPORT_STAGE_DIR}/lib/basis/6-31gs.g94"
   )
 file(
   COPY_FILE
-    "${PROJECT_SOURCE_DIR}/lib/basis/6-31gss.g94"
+    "${PROJECT_SOURCE_DIR}/export/lib/basis/6-31gss.g94"
     "${EXPORT_STAGE_DIR}/lib/basis/6-31gss.g94"
   )
 file(
   COPY_FILE
-    "${PROJECT_SOURCE_DIR}/lib/basis/6-311gss.g94"
+    "${PROJECT_SOURCE_DIR}/export/lib/basis/6-311gss.g94"
     "${EXPORT_STAGE_DIR}/lib/basis/6-311gss.g94"
   )
 
@@ -104,7 +104,7 @@ file(
 
 file(
   INSTALL
-    "${PROJECT_SOURCE_DIR}/python/"
+    "${PROJECT_SOURCE_DIR}/export/python/"
   DESTINATION "${EXPORT_STAGE_DIR}/python"
   FILES_MATCHING
     PATTERN "*.h"
@@ -158,7 +158,7 @@ file(
 #   They're generated along with the integrals .h/.cc library src, then get
 #   exported to include/ (along with the integrals .h), then are finally
 #   installed (not with the integrals .h) into include/libint2/ . The
-#   __COMPILING_LIBINT define and the include/libint2/util/generated/libint2_*.h
+#   __COMPILING_LIBINT2 define and the include/libint2/util/generated/libint2_*.h
 #   redirection headers take care of the "build tree"/"export" setup.
 # In a cmake+cmake buildsystem, one could probably install these three headers
 #   to both locations and forego the define.
@@ -200,8 +200,8 @@ file(
 
 file(
   INSTALL
-    "${PROJECT_SOURCE_DIR}/src/lib/libint/engine.cpp"
-    "${PROJECT_SOURCE_DIR}/src/lib/libint/configuration.cc.cmake.in"
+    "${PROJECT_SOURCE_DIR}/export/engine.cpp"
+    "${PROJECT_SOURCE_DIR}/export/configuration.cc.cmake.in"
   DESTINATION "${EXPORT_STAGE_DIR}/src"
   )
 
@@ -225,7 +225,6 @@ configure_file(
 
 file(
   INSTALL
-    "${PROJECT_SOURCE_DIR}/INSTALL"
     "${PROJECT_SOURCE_DIR}/INSTALL.md"
     "${PROJECT_SOURCE_DIR}/COPYING"
     "${PROJECT_SOURCE_DIR}/COPYING.LESSER"
@@ -235,6 +234,6 @@ file(
   )
 
 configure_file(
-  "${LIBRARY_SOURCE_DIR}/CMakeLists.txt.export"
+  "${PROJECT_SOURCE_DIR}/export/CMakeLists.txt.export"
   "${EXPORT_STAGE_DIR}/CMakeLists.txt"
   COPYONLY)

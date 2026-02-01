@@ -53,7 +53,7 @@ set(pnv libint2) # projectnameversion
 # CMake build overview:
 #
 #    >>> ls
-#    cmake/  COPYING  src/  tests/  ...
+#    cmake/  COPYING  src/  ...
 #    >>> cmake -S. -Bbuild -GNinja -DCMAKE_INSTALL_PREFIX=/path/to/install-libint ...
 #    ...
 #    -- Generating done
@@ -93,6 +93,11 @@ set(pnv libint2) # projectnameversion
 # See INSTALL.md for elaboration of steps above, options below, & translations from libtool.
 
 ################################### Options ####################################
+
+#   !!!!!! N.B. !!!!!!
+#   - all user-facing options are named LIBINT2_*
+#   - all internal variables are named LIBINT_*
+
 include(options)
 include(GNUInstallDirs)
 include(CTest)
@@ -103,7 +108,7 @@ message(STATUS "Building using CMake ${CMAKE_VERSION} Generator ${CMAKE_GENERATO
 option_with_default(CMAKE_BUILD_TYPE "Build type (Release or Debug)" Release)
 
 ### compiler-only
-option_with_print(LIBINT_BUILD_LIBRARY_AS_SUBPROJECT
+option_with_print(LIBINT2_BUILD_LIBRARY_AS_SUBPROJECT
   "[EXPERT] Build generated library as a subproject: if FALSE will configure and build separately" OFF)
 
 ### library-only
@@ -126,25 +131,25 @@ option_with_print(LIBINT2_ENABLE_MPFR
 
 #  <<<  Which Integrals Classes, Which Derivative Levels  >>>
 
-option_with_default(ENABLE_ONEBODY
+option_with_default(LIBINT2_ENABLE_ONEBODY
   "Compile with support for up to N-th derivatives of 1-body integrals (-1 for OFF)" 0)
-option_with_default(ENABLE_ERI
+option_with_default(LIBINT2_ENABLE_ERI
   "Compile with support for up to N-th derivatives of 4-center electron repulsion integrals (-1 for OFF)" 0)
-option_with_default(ENABLE_ERI3
+option_with_default(LIBINT2_ENABLE_ERI3
   "Compile with support for up to N-th derivatives of 3-center electron repulsion integrals (-1 for OFF)" -1)
-option_with_default(ENABLE_ERI2
+option_with_default(LIBINT2_ENABLE_ERI2
   "Compile with support for up to N-th derivatives of 2-center electron repulsion integrals (-1 for OFF)" -1)
-option_with_default(ENABLE_G12
+option_with_default(LIBINT2_ENABLE_G12
   "Compile with support for N-th derivatives of MP2-F12 energies with Gaussian factors (-1 for OFF)" -1)
-option_with_default(ENABLE_G12DKH
+option_with_default(LIBINT2_ENABLE_G12DKH
   "Compile with support for N-th derivatives of DKH-MP2-F12 energies with Gaussian factors (-1 for OFF)" -1)
 
-option_with_print(DISABLE_ONEBODY_PROPERTY_DERIVS
+option_with_print(LIBINT2_DISABLE_ONEBODY_PROPERTY_DERIVS
   "Disable geometric derivatives of 1-body property integrals (all but overlap, kinetic, elecpot).
    These derivatives are disabled by default to save compile time. (enable with OFF)
    Note that the libtool build won't enable this- if forcibly enabled, build_libint balks." ON)
-option_with_print(ENABLE_T1G12_SUPPORT
-  "Enable Ti,G12 integrals when G12 integrals are enabled. Irrelevant when `ENABLE_G12=OFF`. (disable with OFF)" ON)
+option_with_print(LIBINT2_ENABLE_T1G12
+  "Enable [Ti,G12] integrals when G12 integrals are enabled. Irrelevant when `LIBINT2_ENABLE_G12=OFF`. (disable with OFF)" ON)
 
 #  <<<  Ordering Conventions  >>>
 
@@ -179,7 +184,7 @@ option_with_default(LIBINT2_SHELL_SET
 
 #  <<<  How High Angular Momentum  >>>
 
-#  example for "semicolon-separated string": `-DENABLE_ERI3=2 -DWITH_ERI3_MAX_AM="5;4;3"`
+#  example for "semicolon-separated string": `-DLIBINT2_ENABLE_ERI3=2 -DLIBINT2_ERI3_MAX_AM="5;4;3"`
 
 #  special considerations for high-AM library builds:
 #  * high MAX_AM generates a large number of source files. If unity builds are disabled, more than
@@ -189,99 +194,99 @@ option_with_default(LIBINT2_SHELL_SET
 #    "CMake Error: Generator: execution of make failed". Throttle it to physical threads with
 #    `export CMAKE_BUILD_PARALLEL_LEVEL=N`.
 
-option_with_default(WITH_MAX_AM
+option_with_default(LIBINT2_MAX_AM
   "Support Gaussians of angular momentum up to N.
    Can specify values for each derivative level as a semicolon-separated string.
    If ERI3 ints are enabled, this option also controls the AM of the paired centers." 4)
-option_with_default(WITH_OPT_AM
+option_with_default(LIBINT2_OPT_AM
   "Optimize maximally for up to angular momentum N (N <= max-am).
    Can specify values for each derivative level as a semicolon-separated string. (default: (libint_max_am/2)+1)" -1)
 
-option_with_default(MULTIPOLE_MAX_ORDER
+option_with_default(LIBINT2_MULTIPOLE_MAX_ORDER
   "Maximum order of spherical multipole integrals. There is no maximum" 4)
-option_with_default(WITH_ONEBODY_MAX_AM
+option_with_default(LIBINT2_ONEBODY_MAX_AM
   "Support 1-body ints for Gaussians of angular momentum up to N.
    Can specify values for each derivative level as a semicolon-separated string. (default: max_am)" -1)
-option_with_default(WITH_ONEBODY_OPT_AM
+option_with_default(LIBINT2_ONEBODY_OPT_AM
   "Optimize 1-body ints maximally for up to angular momentum N (N <= max-am).
    Can specify values for each derivative level as a semicolon-separated string (default: (max_am/2)+1)" -1)
 
-option_with_default(WITH_ERI_MAX_AM
+option_with_default(LIBINT2_ERI_MAX_AM
   "Support 4-center ERIs for Gaussians of angular momentum up to N.
    Can specify values for each derivative level as a semicolon-separated string. (default: max_am)" -1)
-option_with_default(WITH_ERI_OPT_AM
+option_with_default(LIBINT2_ERI_OPT_AM
   "Optimize 4-center ERIs maximally for up to angular momentum N (N <= max-am).
    Can specify values for each derivative level as a semicolon-separated string (default: (max_am/2)+1)" -1)
 
-option_with_default(WITH_ERI3_MAX_AM
+option_with_default(LIBINT2_ERI3_MAX_AM
   "Support 3-center ERIs for Gaussians of angular momentum up to N.
    Can specify values for each derivative level as a semicolon-separated string. (default: max_am)
-   This option controls only the single fitting center. The paired centers use WITH_MAX_AM." -1)
-option_with_default(WITH_ERI3_OPT_AM
+   This option controls only the single fitting center. The paired centers use LIBINT2_MAX_AM." -1)
+option_with_default(LIBINT2_ERI3_OPT_AM
   "Optimize 3-center ERIs maximally for up to angular momentum N (N <= max-am).
    Can specify values for each derivative level as a semicolon-separated string. (default: (max_am/2)+1)" -1)
-option_with_print(ERI3_PURE_SH
+option_with_print(LIBINT2_ERI3_PURE_SH
   "Assume the 'unpaired' center of 3-center ERIs will be transformed to pure solid harmonics" OFF)
 
-option_with_default(WITH_ERI2_MAX_AM
+option_with_default(LIBINT2_ERI2_MAX_AM
   "Support 2-center ERIs for Gaussians of angular momentum up to N.
     Can specify values for each derivative level as a semicolon-separated string. (default: max_am)" -1)
-option_with_default(WITH_ERI2_OPT_AM
+option_with_default(LIBINT2_ERI2_OPT_AM
   "Optimize 2-center ERIs maximally for up to angular momentum N (N <= max-am).
    Can specify values for each derivative level as a semicolon-separated string. (default: (max_am/2)+1)" -1)
-option_with_print(ERI2_PURE_SH
+option_with_print(LIBINT2_ERI2_PURE_SH
   "Assume the 2-center ERIs will be transformed to pure solid harmonics" OFF)
 
-option_with_default(WITH_G12_MAX_AM
+option_with_default(LIBINT2_G12_MAX_AM
   "Support integrals for G12 methods of angular momentum up to N. (default: max_am)" -1)
-option_with_default(WITH_G12_OPT_AM
+option_with_default(LIBINT2_G12_OPT_AM
   "Optimize G12 integrals for up to angular momentum N (N <= max-am). (default: (max_am/2)+1)" -1)
 
-option_with_default(WITH_G12DKH_MAX_AM
+option_with_default(LIBINT2_G12DKH_MAX_AM
   "Support integrals for relativistic G12 methods of angular momentum up to N. (default: max_am)" -1)
-option_with_default(WITH_G12DKH_OPT_AM
+option_with_default(LIBINT2_G12DKH_OPT_AM
   "Optimize G12DKH integrals for up to angular momentum N (N <= max-am). (default: (max_am/2)+1)" -1)
 
 #  <<<  Miscellaneous  >>>
 
-option_with_print(LIBINT_CONTRACTED_INTS
+option_with_print(LIBINT2_CONTRACTED_INTS
   "Turn on support for contracted integrals." ON)
-option_with_default(LIBINT_ERI_STRATEGY
+option_with_default(LIBINT2_ERI_STRATEGY
   "(EXPERT) Compute ERIs using the following strategy. (0 for OS, 1 for HGP, 2 for HL)" 1)
-option_with_print(LIBINT_USE_COMPOSITE_EVALUATORS
+option_with_print(LIBINT2_USE_COMPOSITE_EVALUATORS
   "Libint will use composite evaluators (i.e. every evaluator will compute one integral type only)" ON)
-option_with_print(LIBINT_SINGLE_EVALTYPE
+option_with_print(LIBINT2_SINGLE_EVALTYPE
   "Generate single evaluator type (i.e. all tasks use the same evaluator). OFF is NYI" ON)
-option_with_default(LIBINT_ENABLE_UNROLLING
+option_with_default(LIBINT2_ENABLE_UNROLLING
   "Unroll shell sets into integrals (will unroll shell sets larger than N) (0 for never, N for N, 1000000000 for always)" 100)
-option_with_default(LIBINT_ALIGN_SIZE
+option_with_default(LIBINT2_ALIGN_SIZE
   "(EXPERT) if posix_memalign is available, this will specify alignment of Libint data, in units of
    sizeof(LIBINT2_REALTYPE). Default is to use built-in heuristics: system-determined for vectorization off (default) or veclen * sizeof(LIBINT2_REALTYPE) for vectorization on." 0)
-mark_as_advanced(LIBINT_ALIGN_SIZE)
+mark_as_advanced(LIBINT2_ALIGN_SIZE)
 option_with_default(LIBINT2_REALTYPE
   "Specifies the floating-point data type used by the library. Consumed at library build-time." double)
-option_with_print(LIBINT_USER_DEFINED_REAL_INCLUDES
+option_with_print(LIBINT2_USER_DEFINED_REAL_INCLUDES
   "Additional #includes necessary to use the real type." OFF)
 include(int_userreal)
-option_with_print(LIBINT_GENERATE_FMA
+option_with_print(LIBINT2_GENERATE_FMA
   "Generate FMA (fused multiply-add) instructions (to benefit must have FMA-capable hardware and compiler)" OFF)
-option_with_print(LIBINT_ENABLE_GENERIC_CODE
+option_with_print(LIBINT2_ENABLE_GENERIC_CODE
   "Use manually-written generic code" OFF)
-option_with_print(LIBINT_API_PREFIX
+option_with_print(LIBINT2_API_PREFIX
   "Prepend this string to every name in the library API (except for the types)." OFF)
-option_with_print(LIBINT_VECTOR_LENGTH
+option_with_print(LIBINT2_VECTOR_LENGTH
   "Compute integrals in vectors of length N." OFF)
-option_with_default(LIBINT_VECTOR_METHOD
-  "Specifies how to vectorize integrals. Irrelevant when `LIBINT_VECTOR_LENGTH=OFF. Allowed values are 'block' (default), and 'line'." block)
-option_with_print(LIBINT_ACCUM_INTS
+option_with_default(LIBINT2_VECTOR_METHOD
+  "Specifies how to vectorize integrals. Irrelevant when `LIBINT2_VECTOR_LENGTH=OFF. Allowed values are 'block' (default), and 'line'." block)
+option_with_print(LIBINT2_ACCUM_INTS
   "Accumulate integrals to the buffer, rather than copy (OFF for copy, ON for accum)." OFF)
-option_with_print(LIBINT_FLOP_COUNT
+option_with_print(LIBINT2_FLOP_COUNT
   "Support (approximate) FLOP counting by the library. (Generated code will require C++11!)" OFF)
-option_with_print(LIBINT_PROFILE
+option_with_print(LIBINT2_PROFILE
   "Turn on profiling instrumentation of the library. (Generated code will require C++11!)" OFF)
 option_with_print(LIBINT2_ENABLE_MPFR
   "Use GNU MPFR library for high-precision testing (EXPERTS ONLY). Consumed at library build-time." OFF)
-option_with_default(EXPORT_COMPRESSOR
+option_with_default(LIBINT2_EXPORT_COMPRESSOR
   "Export tarball with compression gzip or bzip2" gzip)
 # next one defined by `include(CTest)`
 message(STATUS "Showing option BUILD_TESTING: ${BUILD_TESTING}")
@@ -307,26 +312,27 @@ if (cxx_std_11 IN_LIST CMAKE_CXX_COMPILE_FEATURES)
     set(LIBINT_HAS_CXX11 1)
 endif()
 
-booleanize01(ERI3_PURE_SH)
-booleanize01(ERI2_PURE_SH)
-booleanize01(LIBINT_SINGLE_EVALTYPE)
-booleanize01(LIBINT_CONTRACTED_INTS)
-booleanize01(DISABLE_ONEBODY_PROPERTY_DERIVS)
-booleanize01(LIBINT_GENERATE_FMA)
-booleanize01(LIBINT_ENABLE_GENERIC_CODE)
-booleanize01(SUPPORT_T1G12)
-booleanize01(LIBINT_ACCUM_INTS)
-booleanize01(LIBINT_FLOP_COUNT)
-booleanize01(LIBINT_PROFILE)
+booleanize01(LIBINT2_ERI3_PURE_SH)
+booleanize01(LIBINT2_ERI2_PURE_SH)
+booleanize01(LIBINT2_USE_COMPOSITE_EVALUATORS)
+booleanize01(LIBINT2_SINGLE_EVALTYPE)
+booleanize01(LIBINT2_CONTRACTED_INTS)
+booleanize01(LIBINT2_DISABLE_ONEBODY_PROPERTY_DERIVS)
+booleanize01(LIBINT2_GENERATE_FMA)
+booleanize01(LIBINT2_ENABLE_GENERIC_CODE)
+booleanize01(LIBINT2_ENABLE_T1G12)
+booleanize01(LIBINT2_ACCUM_INTS)
+booleanize01(LIBINT2_FLOP_COUNT)
+booleanize01(LIBINT2_PROFILE)
 
-if (EXPORT_COMPRESSOR STREQUAL "gzip")
-    set(EXPORT_COMPRESSOR_CMD "cfz")
-    set(EXPORT_COMPRESSOR_EXT "tgz")
-elseif (EXPORT_COMPRESSOR STREQUAL "bzip2")
-    set(EXPORT_COMPRESSOR_CMD "jcf")
-    set(EXPORT_COMPRESSOR_EXT "tbz2")
+if (LIBINT2_EXPORT_COMPRESSOR STREQUAL "gzip")
+    set(LIBINT_EXPORT_COMPRESSOR_CMD "cfz")
+    set(LIBINT_EXPORT_COMPRESSOR_EXT "tgz")
+elseif (LIBINT2_EXPORT_COMPRESSOR STREQUAL "bzip2")
+    set(LIBINT_EXPORT_COMPRESSOR_CMD "jcf")
+    set(LIBINT_EXPORT_COMPRESSOR_EXT "tbz2")
 else()
-    message(FATAL_ERROR "No valid compressor; invoke CMake with -DEXPORT_COMPRESSOR=gzip|bzip2")
+    message(FATAL_ERROR "No valid compressor; invoke CMake with -DLIBINT2_EXPORT_COMPRESSOR=gzip|bzip2")
 endif()
 
 
@@ -373,6 +379,16 @@ configure_file(
 #   inclusion of config2.h to be filled in later by user re-set-able options at
 #   library build time.
 set(_EXPORT_MODE 0)
+# convert user-facing LIBINT2_ variables to LIBINT_ internal variables
+foreach(_var API_PREFIX;ERI3_PURE_SH;ERI2_PURE_SH;DISABLE_ONEBODY_PROPERTY_DERIVS;ENABLE_UNROLLING;ENABLE_GENERIC_CODE;VECTOR_LENGTH;VECTOR_METHOD;ALIGN_SIZE;USER_DEFINED_REAL;USER_DEFINED_REAL_INCLUDES;GENERATE_FMA;ACCUM_INTS;FLOP_COUNT;PROFILE;CONTRACTED_INTS;SINGLE_EVALTYPE;USE_COMPOSITE_EVALUATORS;ERI_STRATEGY;MULTIPOLE_MAX_ORDER)
+    if (DEFINED LIBINT2_${_var})
+        if (DEFINED LIBINT_${_var})
+            message(FATAL_ERROR "renaming user-facing LIBINT2_${_var} variable but internal variable LIBINT_${_var} already exists")
+        else ()
+            set(LIBINT_${_var} ${LIBINT2_${_var}})
+        endif()
+    endif()
+endforeach ()
 configure_file(
   include/libint2/config.h.cmake.in
   include/libint2/config.h

@@ -115,7 +115,7 @@ TEST_CASE_METHOD(libint2::unit::DefaultFixture, "electrostatic potential",
   {
     const auto lmax = std::min(3, LIBINT2_MAX_AM_elecpot);
     if (lmax >= 2) {
-      const auto deriv_order = INCLUDE_ONEBODY;
+      const auto deriv_order = LIBINT_INCLUDE_ONEBODY;
       auto engine = Engine(Operator::nuclear, 2, lmax, deriv_order);
       engine.set_params(make_point_charges(atoms));
       const auto& buf = engine.results();

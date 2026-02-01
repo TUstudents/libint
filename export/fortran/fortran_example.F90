@@ -7,12 +7,12 @@ PROGRAM fortran_example
    USE libint_f, ONLY: libint_t, libint2_static_init, libint2_static_cleanup, libint2_build, libint2_max_am_eri, &
       compute_eri_f
 
-#ifdef INCLUDE_ERI
+#ifdef LIBINT_INCLUDE_ERI
    USE libint_f, ONLY: libint2_init_eri, libint2_cleanup_eri
-#if INCLUDE_ERI >= 1
+#if LIBINT_INCLUDE_ERI >= 1
    USE libint_f, ONLY: libint2_init_eri1, libint2_cleanup_eri1
 #endif
-#if INCLUDE_ERI >= 2
+#if LIBINT_INCLUDE_ERI >= 2
    USE libint_f, ONLY: libint2_init_eri2, libint2_cleanup_eri2
 #endif
 #endif
@@ -56,7 +56,7 @@ PROGRAM fortran_example
            0.010936175183774838_dp, 0.0047907366138884629_dp]
 
    CALL libint2_static_init()
-#ifdef INCLUDE_ERI
+#ifdef LIBINT_INCLUDE_ERI
    deriv_order = 0
    CALL libint2_init_eri(erieval, max_am, C_NULL_PTR)
    CALL compute_eri_f(1, deriv_order, am1, c1, alpha1, A, &
@@ -67,7 +67,7 @@ PROGRAM fortran_example
    CALL print_eri(am1, am2, am3, am4, deriv_order, erieval)
    CALL libint2_cleanup_eri(erieval)
 
-#if INCLUDE_ERI >= 1
+#if LIBINT_INCLUDE_ERI >= 1
    deriv_order = 1
    CALL libint2_init_eri1(erieval, max_am, C_NULL_PTR)
    CALL compute_eri_f(1, deriv_order, am1, c1, alpha1, A, &
@@ -78,7 +78,7 @@ PROGRAM fortran_example
    CALL print_eri(am1, am2, am3, am4, deriv_order, erieval)
    CALL libint2_cleanup_eri1(erieval)
 #endif
-#if INCLUDE_ERI >= 2
+#if LIBINT_INCLUDE_ERI >= 2
    deriv_order = 2
    CALL libint2_init_eri2(erieval, max_am, C_NULL_PTR)
    CALL compute_eri_f(1, deriv_order, am1, c1, alpha1, A, &

@@ -661,22 +661,22 @@ __libint2_engine_inline void Engine::initialize(size_t max_nprim) {
          "exceeded the max derivative order of the library");
 
   // validate braket
-#ifndef INCLUDE_ONEBODY
+#ifndef LIBINT_INCLUDE_ONEBODY
   assert(braket_ != BraKet::x_x &&
          "this braket type not supported by the library; give --enable-1body "
          "to configure");
 #endif
-#ifndef INCLUDE_ERI
+#ifndef LIBINT_INCLUDE_ERI
   assert(braket_ != BraKet::xx_xx &&
          "this braket type not supported by the library; give --enable-eri to "
          "configure");
 #endif
-#ifndef INCLUDE_ERI3
+#ifndef LIBINT_INCLUDE_ERI3
   assert((braket_ != BraKet::xs_xx && braket_ != BraKet::xx_xs) &&
          "this braket type not supported by the library; give --enable-eri3 to "
          "configure");
 #endif
-#ifndef INCLUDE_ERI2
+#ifndef LIBINT_INCLUDE_ERI2
   assert(braket_ != BraKet::xs_xs &&
          "this braket type not supported by the library; give --enable-eri2 to "
          "configure");
@@ -1909,7 +1909,7 @@ __libint2_engine_inline const Engine::target_ptr_vec& Engine::compute2(
                "the angular momentum limit is exceeded");
         buildfnidx = (bra1.contr[0].l * ket_lmax + ket1.contr[0].l) * ket_lmax +
                      ket2.contr[0].l;
-#ifdef ERI3_PURE_SH
+#ifdef LIBINT_ERI3_PURE_SH
         if (bra1.contr[0].l > 1)
           assert(bra1.contr[0].pure &&
                  "library assumes a solid harmonics shell in bra of a 3-center "
@@ -1923,7 +1923,7 @@ __libint2_engine_inline const Engine::target_ptr_vec& Engine::compute2(
         assert(ket1.contr[0].l <= hard_lmax_ &&
                "the angular momentum limit is exceeded");
         buildfnidx = bra1.contr[0].l * hard_lmax_ + ket1.contr[0].l;
-#ifdef ERI2_PURE_SH
+#ifdef LIBINT_ERI2_PURE_SH
         if (bra1.contr[0].l > 1)
           assert(bra1.contr[0].pure &&
                  "library assumes solid harmonics shells in a 2-center "
