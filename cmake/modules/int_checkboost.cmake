@@ -5,7 +5,7 @@ include(CMakePushCheckState)
 
 cmake_push_check_state()
 if (NOT TARGET Boost::headers)
-    message(FATAL_ERROR "int_boostcheck.cmake: can only invoke if Boost::headers is already available")
+    message(FATAL_ERROR "int_checkboost.cmake: can only invoke if Boost::headers is already available")
 endif()
 # can only link against system or IMPORTED target here
 get_target_property(BOOST_HEADERS_IS_IMPORTED Boost::headers IMPORTED)
