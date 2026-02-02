@@ -172,7 +172,7 @@ find_package(Eigen3 MODULE)
 if (TARGET Eigen3::Eigen)
     set(LIBINT_HAS_EIGEN 1)
 endif()
-if (LIBINT2_REQUIRE_CXX_API AND NOT ${LIBINT_HAS_EIGEN})
+if (LIBINT2_REQUIRE_CXX_API AND NOT LIBINT_HAS_EIGEN)
     message(FATAL_ERROR "C++ API cannot be built without Eigen3; configure (via CMake) and install Eigen3 and add the install prefix to CMAKE_PREFIX_PATH, or add -D LIBINT2_REQUIRE_CXX_API=OFF to the CMake command line if the C++ API is not required")
 endif()
 
