@@ -114,7 +114,17 @@ else ()
   # the script will work as usual
   # re:NO_CMAKE_PACKAGE_REGISTRY: eigen3 registers its *build* tree with the user package registry ...
   #                               to avoid issues with wiped build directory look for installed eigen
-  find_package(Eigen3 ${Eigen3_FIND_VERSION} NO_MODULE QUIET NO_CMAKE_PACKAGE_REGISTRY)
+  # N.B. Eigen3.4 -> Eigen5 transition made versions reported in Eigen3Config useless, will check manually below
+  find_package(Eigen3 NO_MODULE QUIET NO_CMAKE_PACKAGE_REGISTRY)
+
+  # if found older version, reset and try to look for include path directly
+  if (EIGEN3_INCLUDE_DIR)
+    _eigen3_check_version()
+    if (NOT EIGEN3_VERSION_OK)
+      unset(Eigen3_CONFIG)
+      unset(EIGEN3_INCLUDE_DIR)
+    endif()
+  endif()
 
   if(NOT EIGEN3_INCLUDE_DIR)
     find_path(EIGEN3_INCLUDE_DIR NAMES signature_of_eigen3_matrix_library
