@@ -30,8 +30,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04, macos-15]
-        python-version: ['3.9', '3.10', '3.11', '3.12']
+        # Reduced to 1 wheel for debugging
+        os: [ubuntu-24.04]
+        python-version: ['3.12']
 
     env:
       CC: ${{ matrix.os == 'ubuntu-24.04' && 'gcc' || 'clang' }}
@@ -190,18 +191,17 @@ jobs:
         fi
 
     - name: Build Python wheel
-      working-directory: ${{ env.LIBINT_DIR }}/python
+      working-directory: ${{ env.LIBINT_DIR }}
       run: |
         echo "Building Python wheel..."
 
-        # Set CMAKE_PREFIX_PATH so scikit-build-core can find the installed library
-        export CMAKE_PREFIX_PATH="${{github.workspace}}/libint-install"
-
-        # Build the wheel
+        # The CMake configure step already configured pyproject.toml in the build directory
+        # Build the wheel from the build directory where pyproject.toml has been configured
+        cd build
         python -m build --wheel .
 
         # Find the generated wheel
-        WHEEL=$(ls -1 dist/*.whl | head -1)
+        WHEEL=$(ls -1 dist/*.whl 2>/dev/null | head -1 || true)
         if [ -z "$WHEEL" ]; then
           echo "ERROR: No wheel file generated!"
           ls -la dist/ || echo "dist/ directory not found"
@@ -210,11 +210,12 @@ jobs:
 
         echo "Generated wheel: $WHEEL"
         echo "Wheel size: $(du -h $WHEEL | cut -f1)"
-        echo "WHEEL_PATH=$WHEEL" >> $GITHUB_ENV
+        # Store absolute path
+        WHEEL_ABS="$(cd "$(dirname "$WHEEL")" && pwd)/$(basename "$WHEEL")"
+        echo "WHEEL_PATH=$WHEEL_ABS" >> $GITHUB_ENV
         echo "WHEEL_NAME=$(basename $WHEEL)" >> $GITHUB_ENV
 
     - name: Install and test wheel
-      working-directory: ${{ env.LIBINT_DIR }}/python
       run: |
         echo "Installing wheel..."
         python -m pip install "$WHEEL_PATH"

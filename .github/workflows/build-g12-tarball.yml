@@ -89,12 +89,16 @@ jobs:
         cmake -S ../.. -B . \
           -G Ninja \
           -D CMAKE_BUILD_TYPE=Release \
+          -D LIBINT2_MAX_AM=4 \
           -D LIBINT2_ENABLE_G12=$G12_DERIV_LEVEL \
-          -D LIBINT2_G12_MAX_AM=$G12_MAX_AM \
+          -D LIBINT2_G12_MAX_AM=4 \
           -D LIBINT2_ENABLE_T1G12=ON \
-          -D LIBINT2_MAX_AM=$MAX_AM \
           -D LIBINT2_ENABLE_ERI=1 \
+          -D LIBINT2_ENABLE_ERI3=1 \
           -D LIBINT2_ENABLE_ONEBODY=1 \
+          -D LIBINT2_DISABLE_ONEBODY_PROPERTY_DERIVS=ON \
+          -D LIBINT2_MULTIPOLE_MAX_ORDER=2 \
+          -D LIBINT2_REQUIRE_CXX_API_COMPILED=ON \
           -D LIBINT2_EXPORT_COMPRESSOR=gzip \
           --log-level=DEBUG
 
