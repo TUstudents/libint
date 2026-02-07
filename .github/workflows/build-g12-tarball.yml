@@ -138,14 +138,14 @@ jobs:
       working-directory: ${{github.workspace}}/build/compiler
       run: |
         echo "Verifying tarball contents..."
-        tar -tzf "$TARBALL_NAME" | head -20
+        tar -tzf "$TARBALL_NAME" | head -20 || true
 
         echo "Extracting to verify structure..."
         mkdir -p verify_extract
         tar -xzf "$TARBALL_NAME" -C verify_extract
 
         # Check for key files
-        EXTRACT_DIR=$(ls -1d verify_extract/libint-* | head -1)
+        EXTRACT_DIR=$(ls -1d verify_extract/libint-* | head -1 || true)
         if [ ! -f "$EXTRACT_DIR/CMakeLists.txt" ]; then
           echo "ERROR: CMakeLists.txt not found in tarball!"
           exit 1
