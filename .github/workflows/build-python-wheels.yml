@@ -191,20 +191,18 @@ jobs:
         fi
 
     - name: Build Python wheel
-      working-directory: ${{ env.LIBINT_DIR }}
+      working-directory: ${{ env.LIBINT_DIR }}/build
       run: |
-        echo "Building Python wheel..."
+        echo "Building Python wheel using CMake target..."
 
-        # The CMake configure step already configured pyproject.toml in the build directory
-        # Build the wheel from the build directory where pyproject.toml has been configured
-        cd build
-        python -m build --wheel .
+        # Use the CMake target which handles all the necessary file copying
+        cmake --build . --target libint2-python-wheel
 
         # Find the generated wheel
-        WHEEL=$(ls -1 dist/*.whl 2>/dev/null | head -1 || true)
+        WHEEL=$(find . -name "*.whl" -type f | head -1)
         if [ -z "$WHEEL" ]; then
           echo "ERROR: No wheel file generated!"
-          ls -la dist/ || echo "dist/ directory not found"
+          find . -name "dist" -type d -exec ls -la {} \;
           exit 1
         fi
 
