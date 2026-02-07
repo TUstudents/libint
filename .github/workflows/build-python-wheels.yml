@@ -191,18 +191,22 @@ jobs:
         fi
 
     - name: Build Python wheel
-      working-directory: ${{ env.LIBINT_DIR }}/build
+      working-directory: ${{ env.LIBINT_DIR }}/python
       run: |
-        echo "Building Python wheel using CMake target..."
+        echo "Configuring Python package..."
 
-        # Use the CMake target which handles all the necessary file copying
-        cmake --build . --target libint2-python-wheel
+        # Configure python package separately to substitute @LIBINT_VERSION@
+        cmake -S . -B build \
+          -D CMAKE_PREFIX_PATH="${{github.workspace}}/libint-install"
+
+        echo "Building Python wheel using CMake target..."
+        cmake --build build --target libint2-python-wheel
 
         # Find the generated wheel
-        WHEEL=$(find . -name "*.whl" -type f | head -1)
+        WHEEL=$(find build -name "*.whl" -type f | head -1)
         if [ -z "$WHEEL" ]; then
           echo "ERROR: No wheel file generated!"
-          find . -name "dist" -type d -exec ls -la {} \;
+          find build -name "dist" -type d -exec ls -la {} \;
           exit 1
         fi
 
