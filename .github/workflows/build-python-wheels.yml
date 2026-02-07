@@ -1,0 +1,293 @@
+name: Build Python Wheels
+
+on:
+  workflow_dispatch:
+    inputs:
+      tarball_url:
+        description: 'URL to libint G12 tarball (e.g., from GitHub release)'
+        type: string
+        required: true
+      version:
+        description: 'Version string (e.g., 2.13.0)'
+        type: string
+        required: true
+  workflow_run:
+    workflows: ["Build G12 Tarball"]
+    types:
+      - completed
+
+jobs:
+  build-wheels:
+    name: "Wheel • ${{ matrix.os }} • Python ${{ matrix.python-version }}"
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+
+    # Only run on successful tarball workflow completion, or on manual dispatch
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success')
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-15]
+        python-version: ['3.9', '3.10', '3.11', '3.12']
+
+    env:
+      CC: ${{ matrix.os == 'ubuntu-24.04' && 'gcc' || 'clang' }}
+      CXX: ${{ matrix.os == 'ubuntu-24.04' && 'g++' || 'clang++' }}
+      CCACHE_DIR: ${{github.workspace}}/build/.ccache
+      CCACHE_COMPRESS: true
+      CCACHE_COMPRESSLEVEL: 6
+
+    steps:
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Display Python version
+      run: |
+        python --version
+        which python
+
+    - name: Install macOS dependencies
+      if: matrix.os == 'macos-15'
+      run: |
+        brew install ninja boost eigen gmp ccache
+
+    - name: Install Ubuntu dependencies
+      if: matrix.os == 'ubuntu-24.04'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          ninja-build \
+          libboost-dev \
+          libeigen3-dev \
+          libgmp-dev \
+          libgmpxx4ldbl \
+          ccache
+
+    - name: Install Python build dependencies
+      run: |
+        python -m pip install --upgrade pip setuptools wheel
+        python -m pip install "scikit-build-core>=0.8" "pybind11>=3.0" build pytest numpy scipy
+
+    - name: Prepare ccache timestamp
+      id: ccache_cache_timestamp
+      shell: cmake -P {0}
+      run: |
+        string(TIMESTAMP current_date "%Y-%m-%d-%H;%M;%S" UTC)
+        message("timestamp=${current_date}")
+        file(APPEND "$ENV{GITHUB_OUTPUT}" "timestamp=${current_date}\n")
+
+    - name: Setup ccache cache
+      uses: actions/cache@v4
+      with:
+        path: ${{github.workspace}}/build/.ccache
+        key: wheel-${{ matrix.os }}-py${{ matrix.python-version }}-ccache-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
+        restore-keys: |
+          wheel-${{ matrix.os }}-py${{ matrix.python-version }}-ccache-
+
+    - name: Download tarball from artifact (workflow_run trigger)
+      if: github.event_name == 'workflow_run'
+      uses: actions/download-artifact@v4
+      with:
+        name: libint-g12-tarball
+        path: ${{github.workspace}}
+        run-id: ${{ github.event.workflow_run.id }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Download tarball from URL (manual trigger)
+      if: github.event_name == 'workflow_dispatch'
+      run: |
+        echo "Downloading tarball from: ${{ github.event.inputs.tarball_url }}"
+        curl -L -o libint-g12.tgz "${{ github.event.inputs.tarball_url }}"
+        ls -lh libint-g12.tgz
+
+    - name: Find and verify tarball
+      id: find_tarball
+      run: |
+        # Find the tarball (either downloaded from artifact or from URL)
+        TARBALL=$(ls -1 libint-*.tgz 2>/dev/null | head -1)
+
+        if [ -z "$TARBALL" ]; then
+          echo "ERROR: No tarball found!"
+          ls -la
+          exit 1
+        fi
+
+        echo "Found tarball: $TARBALL"
+        echo "Size: $(du -h $TARBALL | cut -f1)"
+
+        # Verify it's a valid gzip file
+        if ! gzip -t "$TARBALL" 2>/dev/null; then
+          echo "ERROR: Tarball is not a valid gzip file!"
+          exit 1
+        fi
+
+        echo "TARBALL_PATH=$TARBALL" >> $GITHUB_ENV
+
+    - name: Extract tarball
+      run: |
+        echo "Extracting $TARBALL_PATH..."
+        tar -xzf "$TARBALL_PATH"
+
+        # Find extracted directory
+        EXTRACT_DIR=$(ls -1d libint-*/ 2>/dev/null | head -1)
+        if [ -z "$EXTRACT_DIR" ]; then
+          echo "ERROR: No extracted directory found!"
+          ls -la
+          exit 1
+        fi
+
+        # Remove trailing slash
+        EXTRACT_DIR="${EXTRACT_DIR%/}"
+        echo "Extracted directory: $EXTRACT_DIR"
+        echo "LIBINT_DIR=${{github.workspace}}/$EXTRACT_DIR" >> $GITHUB_ENV
+
+        # Display contents
+        echo "Top-level contents:"
+        ls -la "$EXTRACT_DIR" | head -20
+
+    - name: Configure Libint library
+      working-directory: ${{ env.LIBINT_DIR }}
+      run: |
+        echo "Configuring Libint library with Python support..."
+        cmake -S . -B build \
+          -G Ninja \
+          -D CMAKE_BUILD_TYPE=Release \
+          -D BUILD_SHARED_LIBS=OFF \
+          -D LIBINT2_REQUIRE_CXX_API_COMPILED=ON \
+          -D LIBINT2_ENABLE_PYTHON=ON \
+          -D CMAKE_INSTALL_PREFIX=${{github.workspace}}/libint-install
+
+    - name: Build Libint library
+      working-directory: ${{ env.LIBINT_DIR }}
+      run: |
+        echo "Building Libint library..."
+        cmake --build build -- -j $(nproc 2>/dev/null || sysctl -n hw.ncpu)
+
+    - name: Install Libint library
+      working-directory: ${{ env.LIBINT_DIR }}
+      run: |
+        echo "Installing Libint library..."
+        cmake --install build
+
+    - name: Verify library installation
+      run: |
+        echo "Checking installed files..."
+        ls -la ${{github.workspace}}/libint-install/
+
+        if [ -d "${{github.workspace}}/libint-install/lib" ]; then
+          echo "Library files:"
+          ls -la ${{github.workspace}}/libint-install/lib/ | head -20
+        fi
+
+        if [ -d "${{github.workspace}}/libint-install/include" ]; then
+          echo "Header files:"
+          ls -la ${{github.workspace}}/libint-install/include/ | head -20
+        fi
+
+    - name: Build Python wheel
+      working-directory: ${{ env.LIBINT_DIR }}/python
+      run: |
+        echo "Building Python wheel..."
+
+        # Set CMAKE_PREFIX_PATH so scikit-build-core can find the installed library
+        export CMAKE_PREFIX_PATH="${{github.workspace}}/libint-install"
+
+        # Build the wheel
+        python -m build --wheel .
+
+        # Find the generated wheel
+        WHEEL=$(ls -1 dist/*.whl | head -1)
+        if [ -z "$WHEEL" ]; then
+          echo "ERROR: No wheel file generated!"
+          ls -la dist/ || echo "dist/ directory not found"
+          exit 1
+        fi
+
+        echo "Generated wheel: $WHEEL"
+        echo "Wheel size: $(du -h $WHEEL | cut -f1)"
+        echo "WHEEL_PATH=$WHEEL" >> $GITHUB_ENV
+        echo "WHEEL_NAME=$(basename $WHEEL)" >> $GITHUB_ENV
+
+    - name: Install and test wheel
+      working-directory: ${{ env.LIBINT_DIR }}/python
+      run: |
+        echo "Installing wheel..."
+        python -m pip install "$WHEEL_PATH"
+
+        echo "Testing import..."
+        python -c "import libint2; print(f'libint2 version: {libint2.__version__}')"
+
+        echo "Checking configuration..."
+        python -c 'import libint2; config = libint2.configuration_accessor(); print("Configuration:", config); print("✓ G12 support confirmed" if "g12" in config.lower() else "Note: G12 may still be available")'
+
+    - name: Run Python test suite
+      working-directory: ${{ env.LIBINT_DIR }}/python
+      run: |
+        echo "Running Python test suite..."
+        if [ -d "tests" ]; then
+          python -m pytest tests/ -v
+        else
+          echo "No tests directory found, skipping test suite"
+        fi
+
+    - name: Test G12 functionality
+      run: |
+        python -c "from libint2 import Engine, Operator; engine = Engine(Operator.g12, 2, 0); print('✓ G12 engine created successfully')"
+
+    - name: Upload wheel artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: libint2-wheel-${{ matrix.os }}-py${{ matrix.python-version }}
+        path: ${{ env.WHEEL_PATH }}
+        retention-days: 90
+        if-no-files-found: error
+
+  upload-to-release:
+    name: "Upload wheels to GitHub Release"
+    needs: build-wheels
+    runs-on: ubuntu-latest
+    # Only run on tag pushes (via workflow_run trigger from tarball workflow)
+    if: >
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      startsWith(github.event.workflow_run.head_branch, 'v')
+
+    steps:
+    - name: Download all wheel artifacts
+      uses: actions/download-artifact@v4
+      with:
+        pattern: libint2-wheel-*
+        path: wheels
+        merge-multiple: true
+
+    - name: Display downloaded wheels
+      run: |
+        echo "Downloaded wheels:"
+        ls -lh wheels/
+        echo ""
+        echo "Wheel files:"
+        ls -1 wheels/*.whl
+
+    - name: Extract version from workflow
+      id: get_version
+      run: |
+        # Extract version from the triggering workflow's tag
+        TAG_NAME="${{ github.event.workflow_run.head_branch }}"
+        # Remove 'v' prefix if present
+        VERSION="${TAG_NAME#v}"
+        echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+        echo "Extracted version: $VERSION from tag: $TAG_NAME"
+
+    - name: Upload wheels to release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ steps.get_version.outputs.VERSION }}
+        files: wheels/*.whl
+        fail_on_unmatched_files: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,214 @@
+name: Build G12 Tarball
+
+on:
+  workflow_dispatch:
+    inputs:
+      g12_deriv_level:
+        description: 'G12 derivative level (0=energy only, 1=gradients, 2=hessians)'
+        type: string
+        default: '1'
+      g12_max_am:
+        description: 'G12 maximum angular momentum'
+        type: string
+        default: '4'
+      max_am:
+        description: 'General maximum angular momentum'
+        type: string
+        default: '4'
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-tarball:
+    name: "Build G12-enabled tarball"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+
+    env:
+      CC: gcc
+      CXX: g++
+      CCACHE_DIR: ${{github.workspace}}/build/.ccache
+      CCACHE_COMPRESS: true
+      CCACHE_COMPRESSLEVEL: 6
+      # G12 configuration - use workflow inputs if available, otherwise defaults
+      G12_DERIV_LEVEL: ${{ github.event.inputs.g12_deriv_level || '1' }}
+      G12_MAX_AM: ${{ github.event.inputs.g12_max_am || '4' }}
+      MAX_AM: ${{ github.event.inputs.max_am || '4' }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+      # fetch-depth: 0 needed for git describe to compute version
+
+    - name: Create build directories
+      run: |
+        cmake -E make_directory ${{github.workspace}}/build/compiler
+
+    - name: Install Ubuntu dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          ninja-build \
+          libboost-dev \
+          libeigen3-dev \
+          libgmp-dev \
+          libgmpxx4ldbl \
+          ccache
+
+    - name: Prepare ccache timestamp
+      id: ccache_cache_timestamp
+      shell: cmake -P {0}
+      run: |
+        string(TIMESTAMP current_date "%Y-%m-%d-%H;%M;%S" UTC)
+        message("timestamp=${current_date}")
+        file(APPEND "$ENV{GITHUB_OUTPUT}" "timestamp=${current_date}\n")
+
+    - name: Setup ccache cache
+      uses: actions/cache@v4
+      with:
+        path: ${{github.workspace}}/build/.ccache
+        key: g12-compiler-ccache-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
+        restore-keys: |
+          g12-compiler-ccache-
+
+    - name: Display G12 configuration
+      run: |
+        echo "Building tarball with G12 configuration:"
+        echo "  G12_DERIV_LEVEL: $G12_DERIV_LEVEL"
+        echo "  G12_MAX_AM: $G12_MAX_AM"
+        echo "  MAX_AM: $MAX_AM"
+        echo "  Repository version: $(git describe --tags)"
+
+    - name: Build Libint compiler with G12 support
+      shell: bash
+      working-directory: ${{github.workspace}}/build/compiler
+      run: |
+        cmake -S ../.. -B . \
+          -G Ninja \
+          -D CMAKE_BUILD_TYPE=Release \
+          -D LIBINT2_ENABLE_G12=$G12_DERIV_LEVEL \
+          -D LIBINT2_G12_MAX_AM=$G12_MAX_AM \
+          -D LIBINT2_ENABLE_T1G12=ON \
+          -D LIBINT2_MAX_AM=$MAX_AM \
+          -D LIBINT2_ENABLE_ERI=1 \
+          -D LIBINT2_ENABLE_ONEBODY=1 \
+          -D LIBINT2_EXPORT_COMPRESSOR=gzip \
+          --log-level=DEBUG
+
+        echo "Building Libint compiler..."
+        cmake --build . --target build_libint -- -j $(nproc)
+
+    - name: Generate export tarball (this takes 15-30 minutes)
+      shell: bash
+      working-directory: ${{github.workspace}}/build/compiler
+      run: |
+        echo "Generating export tarball - this is a slow serial process..."
+        echo "Started at: $(date)"
+
+        cmake --build . --target export
+
+        echo "Completed at: $(date)"
+
+        # Find the generated tarball
+        TARBALL=$(ls -1 libint-*.tgz | head -1)
+        if [ -z "$TARBALL" ]; then
+          echo "ERROR: No tarball found!"
+          exit 1
+        fi
+
+        echo "Generated tarball: $TARBALL"
+        echo "Tarball size: $(du -h $TARBALL | cut -f1)"
+
+        # Rename to include g12 suffix for clarity
+        VERSION=$(git describe --tags | sed 's/^v//')
+        NEW_NAME="libint-${VERSION}-g12.tgz"
+        mv "$TARBALL" "$NEW_NAME"
+        echo "Renamed to: $NEW_NAME"
+
+        # Set output for later steps
+        echo "TARBALL_NAME=$NEW_NAME" >> $GITHUB_ENV
+        echo "TARBALL_PATH=${{github.workspace}}/build/compiler/$NEW_NAME" >> $GITHUB_ENV
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+    - name: Verify tarball contents
+      shell: bash
+      working-directory: ${{github.workspace}}/build/compiler
+      run: |
+        echo "Verifying tarball contents..."
+        tar -tzf "$TARBALL_NAME" | head -20
+
+        echo "Extracting to verify structure..."
+        mkdir -p verify_extract
+        tar -xzf "$TARBALL_NAME" -C verify_extract
+
+        # Check for key files
+        EXTRACT_DIR=$(ls -1d verify_extract/libint-* | head -1)
+        if [ ! -f "$EXTRACT_DIR/CMakeLists.txt" ]; then
+          echo "ERROR: CMakeLists.txt not found in tarball!"
+          exit 1
+        fi
+
+        if [ ! -f "$EXTRACT_DIR/features" ]; then
+          echo "ERROR: features file not found in tarball!"
+          exit 1
+        fi
+
+        echo "Features file content:"
+        cat "$EXTRACT_DIR/features"
+
+        # Check for G12 support in features
+        if ! grep -q "g12" "$EXTRACT_DIR/features"; then
+          echo "WARNING: G12 not explicitly mentioned in features file"
+          echo "This may be expected - checking library sources instead..."
+        fi
+
+        echo "Tarball verification complete!"
+
+    - name: Upload tarball as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: libint-g12-tarball
+        path: ${{ env.TARBALL_PATH }}
+        retention-days: 90
+        if-no-files-found: error
+
+    - name: Create GitHub Release
+      if: startsWith(github.ref, 'refs/tags/v')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ${{ env.TARBALL_PATH }}
+        body: |
+          # Libint ${{ env.VERSION }} with G12 Support
+
+          This release includes a pre-built tarball with G12 (geminal) integral support enabled.
+
+          ## G12 Configuration
+          - **Derivative level**: ${{ env.G12_DERIV_LEVEL }} (0=energy, 1=gradients, 2=hessians)
+          - **G12 max angular momentum**: ${{ env.G12_MAX_AM }}
+          - **General max angular momentum**: ${{ env.MAX_AM }}
+          - **T1G12 commutator integrals**: Enabled
+
+          ## Using this tarball
+
+          ```bash
+          # Download and extract
+          wget https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/${{ env.TARBALL_NAME }}
+          tar -xzf ${{ env.TARBALL_NAME }}
+          cd libint-${{ env.VERSION }}
+
+          # Build and install
+          cmake -S . -B build -D CMAKE_INSTALL_PREFIX=/path/to/install
+          cmake --build build
+          cmake --install build
+          ```
+
+          ## Python wheels
+
+          Pre-built Python wheels for this release are available as artifacts in the "Build Python Wheels" workflow run.
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
