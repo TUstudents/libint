@@ -113,6 +113,7 @@ endif()
 # endif()
 
 configure_file(pyproject.toml ${PROJECT_BINARY_DIR}/pyproject.toml @ONLY)
+configure_file(README.md ${PROJECT_BINARY_DIR}/README.md COPYONLY)
 
 # Install the Python module to the correct location for scikit-build-core
 install(TARGETS libint2-python
