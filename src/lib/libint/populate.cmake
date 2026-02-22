@@ -112,6 +112,7 @@ file(
     PATTERN "*.py"
     PATTERN "*.py.in"
     PATTERN "*.toml"
+    PATTERN "*.md"
     PATTERN "CMakeLists.txt"
   )
 
