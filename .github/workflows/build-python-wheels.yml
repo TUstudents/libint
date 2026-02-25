@@ -193,20 +193,26 @@ jobs:
     - name: Build Python wheel
       working-directory: ${{ env.LIBINT_DIR }}/python
       run: |
-        echo "Configuring Python package..."
+        echo "Configuring Python package (substitutes @LIBINT_VERSION@ in pyproject.toml)..."
 
-        # Configure python package separately to substitute @LIBINT_VERSION@
+        # Configure python package to substitute @LIBINT_VERSION@ into pyproject.toml
         cmake -S . -B build \
           -D CMAKE_PREFIX_PATH="${{github.workspace}}/libint-install"
 
-        echo "Building Python wheel using CMake target..."
-        cmake --build build --target libint2-python-wheel
+        # Copy configured pyproject.toml (with version substituted) to source dir.
+        # scikit-build-core requires pyproject.toml and CMakeLists.txt in the same (source) dir.
+        cp build/pyproject.toml .
 
-        # Find the generated wheel
-        WHEEL=$(find build -name "*.whl" -type f | head -1)
+        echo "Building Python wheel..."
+        # Pass CMAKE_PREFIX_PATH so scikit-build-core can find the installed libint2
+        CMAKE_ARGS="-DCMAKE_PREFIX_PATH=${{github.workspace}}/libint-install" \
+          python -m build --wheel .
+
+        # Find the generated wheel (scikit-build-core puts it in dist/)
+        WHEEL=$(find dist -name "*.whl" -type f | head -1)
         if [ -z "$WHEEL" ]; then
           echo "ERROR: No wheel file generated!"
-          find build -name "dist" -type d -exec ls -la {} \;
+          find . -name "*.whl" -type f 2>/dev/null || echo "No .whl files found"
           exit 1
         fi
 
