@@ -167,13 +167,13 @@ jobs:
       working-directory: ${{ env.LIBINT_DIR }}
       run: |
         echo "Building Libint library..."
-        cmake --build build -- -j $(nproc 2>/dev/null || sysctl -n hw.ncpu)
+        cmake --build .cmake-config -- -j $(nproc 2>/dev/null || sysctl -n hw.ncpu)
 
     - name: Install Libint library
       working-directory: ${{ env.LIBINT_DIR }}
       run: |
         echo "Installing Libint library..."
-        cmake --install build
+        cmake --install .cmake-config
 
     - name: Verify library installation
       run: |
