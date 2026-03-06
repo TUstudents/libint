@@ -155,7 +155,7 @@ jobs:
       working-directory: ${{ env.LIBINT_DIR }}
       run: |
         echo "Configuring Libint library with Python support..."
-        cmake -S . -B build \
+        cmake -S . -B .cmake-config \
           -G Ninja \
           -D CMAKE_BUILD_TYPE=Release \
           -D BUILD_SHARED_LIBS=OFF \
@@ -195,13 +195,15 @@ jobs:
       run: |
         echo "Configuring Python package (substitutes @LIBINT_VERSION@ in pyproject.toml)..."
 
-        # Configure python package to substitute @LIBINT_VERSION@ into pyproject.toml
-        cmake -S . -B build \
+        # Configure cmake in a separate dir to substitute @LIBINT_VERSION@ into pyproject.toml.
+        # We avoid the "build" dir name so scikit-build-core gets a clean build/ dir
+        # (avoids Ninja vs Makefile generator conflict in pybind11 FetchContent subbuild).
+        cmake -S . -B .cmake-config \
           -D CMAKE_PREFIX_PATH="${{github.workspace}}/libint-install"
 
         # Copy configured pyproject.toml (with version substituted) to source dir.
         # scikit-build-core requires pyproject.toml and CMakeLists.txt in the same (source) dir.
-        cp build/pyproject.toml .
+        cp .cmake-config/pyproject.toml .
 
         echo "Building Python wheel..."
         # Pass CMAKE_PREFIX_PATH so scikit-build-core can find the installed libint2
