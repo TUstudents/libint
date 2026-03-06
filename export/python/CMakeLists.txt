@@ -64,6 +64,8 @@ pybind11_add_module(
 
 target_compile_features(libint2-python PRIVATE "cxx_std_17")
 
+target_compile_definitions(libint2-python PRIVATE LIBINT2_PYTHON_VERSION="${LIBINT_VERSION}")
+
 if (pybind11_VERSION VERSION_GREATER_EQUAL 2.7.0)
     # suppress error in L2
     # * https://github.com/pybind/pybind11/pull/2919
