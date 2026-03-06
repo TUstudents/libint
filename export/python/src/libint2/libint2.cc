@@ -37,6 +37,7 @@ typedef SSIZE_T ssize_t;
 #include <pybind11/stl.h>
 
 #include "basis.h"
+#include "libint2_version.h"
 
 namespace py = pybind11;
 
@@ -145,9 +146,7 @@ PYBIND11_MODULE(libint2, m) {
   libint2::initialize();
 
   m.attr("MAX_AM") = LIBINT2_MAX_AM;
-#ifdef LIBINT2_PYTHON_VERSION
   m.attr("__version__") = LIBINT2_PYTHON_VERSION;
-#endif
 
   py::class_<Atom>(m, "Atom")
       .def(py::init(&make_atom<int, Double3>))

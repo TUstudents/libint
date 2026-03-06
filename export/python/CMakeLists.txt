@@ -64,7 +64,10 @@ pybind11_add_module(
 
 target_compile_features(libint2-python PRIVATE "cxx_std_17")
 
-target_compile_definitions(libint2-python PRIVATE LIBINT2_PYTHON_VERSION="${LIBINT_VERSION}")
+# Generate a version header so libint2.cc can expose __version__
+file(WRITE ${PROJECT_BINARY_DIR}/libint2_version.h
+    "#pragma once\n#define LIBINT2_PYTHON_VERSION \"${LIBINT_VERSION}\"\n")
+target_include_directories(libint2-python PRIVATE ${PROJECT_BINARY_DIR})
 
 if (pybind11_VERSION VERSION_GREATER_EQUAL 2.7.0)
     # suppress error in L2
