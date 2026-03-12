@@ -120,10 +120,11 @@ endif()
 configure_file(pyproject.toml ${PROJECT_BINARY_DIR}/pyproject.toml @ONLY)
 configure_file(README.md ${PROJECT_BINARY_DIR}/README.md COPYONLY)
 
-# Install the Python module to the correct location for scikit-build-core
+# Install the Python module to the prefix root (wheel.install-dir="" in pyproject.toml).
+# This puts libint2.cpython-*.so directly in site-packages so 'import libint2' works.
 install(TARGETS libint2-python
-  LIBRARY DESTINATION libint2
-  RUNTIME DESTINATION libint2
+  LIBRARY DESTINATION .
+  RUNTIME DESTINATION .
 )
 
 #  <<<  Install  >>>

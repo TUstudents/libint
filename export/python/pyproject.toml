@@ -32,8 +32,8 @@ classifiers = [
 cmake.targets = ["libint2-python"]
 # Build directory
 build-dir = "build"
-# Set the install directory to the Python package location
-wheel.install-dir = "libint2"
+# Install to site-packages root so 'import libint2' finds libint2.cpython-*.so directly
+wheel.install-dir = ""
 # Don't copy CMake config files to the wheel
 cmake.build-type = "Release"
 # Minimum CMake version

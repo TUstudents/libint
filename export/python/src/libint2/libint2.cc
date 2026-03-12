@@ -19,6 +19,7 @@
  */
 
 #include <libint2/chemistry/sto3g_atomic_density.h>
+#include <libint2/util/configuration.h>
 
 #include <Eigen/Dense>
 #include <libint2.hpp>
@@ -249,6 +250,8 @@ PYBIND11_MODULE(libint2, m) {
   m.def("coulomb", &engine::make_engine<Operator::coulomb>);
   m.def("nuclear",
         &engine::make_engine<Operator::nuclear, std::vector<PointCharge> >);
+
+  m.def("configuration_accessor", []() { return libint2::configuration_accessor(); });
 
   m.def("sto3g_num_ao", &libint2::sto3g_num_ao);
   m.def("sto3g_ao_occupation_vector",
